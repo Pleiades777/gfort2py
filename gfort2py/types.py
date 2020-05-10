@@ -22,7 +22,12 @@ class emptyDT(ctypes.Structure):
 class fDerivedType(object):
     def __init__(self, obj):
         self._obj = obj
-        self.__dict__.update(obj)
+        self.var = obj['var']
+        if 'mangled_name' in obj:
+            self.mangled_name = obj['mangled_name']
+        if 'name' in obj:
+            self.name = obj['name']
+
         self._comp = collections.OrderedDict()
 
         self._ndims = 1

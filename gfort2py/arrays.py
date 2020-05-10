@@ -70,11 +70,15 @@ class BadFortranArray(Exception):
 
 class fExplicitArray(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.var = obj['var']
+        if 'mangled_name' in obj:
+            self.mangled_name = obj['mangled_name']
         self._array = True
+        if 'name' in obj:
+            self.name = obj['name']
 
         if 'array' in self.var:
-            self.__dict__.update(obj['var'])
+            self.array = obj['var']['array']
 
         self.ctype = self.var['ctype']
         self.pytype = self.var['pytype']
@@ -169,8 +173,8 @@ class fExplicitArray(object):
         ctypes.memmove(ctypes.addressof(c), v_addr, self.sizeof())
         remove_ownership(self._value)
 
-    def set(self, value):
-        self._set(self.in_dll(), value)
+    #def set(self, value):
+    #    self._set(self.in_dll(), value)
 
     def in_dll(self, lib):
         addr = ctypes.addressof(self.ctype.in_dll(lib, self.mangled_name))
@@ -228,8 +232,12 @@ class fDummyArray(object):
                  'str': _BT_CHARACTER, 'bytes': _BT_CHARACTER}
 
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.var = obj['var']
+        if 'mangled_name' in obj:
+            self.mangled_name = obj['mangled_name']
         self._array = self.var['array']
+        if 'name' in obj:
+            self.name = obj['name']
 
         self.ndim = int(self._array['ndim'])
 
@@ -289,7 +297,7 @@ class fDummyArray(object):
         elif 'c_char' == ct:
             ftype = self._BT_CHARACTER
         else:
-            raise ValueError("Cant match dtype, got " + ctype)
+            raise ValueError("Cant match dtype, got " + ct)
         return ftype
 
     def from_address(self, addr):
@@ -418,7 +426,7 @@ class fAssumedSize(fExplicitArray):
 
 class fParamArray(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.param = obj['param']
         self.pytype = self.param['pytype']
         self.pytype = getattr(__builtin__, self.pytype)
         self.value = np.array(

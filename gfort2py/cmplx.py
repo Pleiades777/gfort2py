@@ -16,7 +16,11 @@ from .ctypes import get_complex
 class fComplex(object):
     def __init__(self, obj):
         self.var = obj['var']
-        self.mangled_name = obj['mangled_name']
+        if 'mangled_name' in obj:
+            self.mangled_name = obj['mangled_name']
+        if 'name' in obj:
+            self.name = obj['name']
+
         self.ctype = self.var['ctype']
         self.pytype = self.var['pytype']
 

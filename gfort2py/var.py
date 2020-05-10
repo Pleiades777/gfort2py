@@ -14,7 +14,11 @@ from .errors import *
 class fVar(object):
     def __init__(self, obj):
         self.var = obj['var']
-        self.mangled_name = obj['mangled_name']
+        if 'mangled_name' in obj:
+            self.mangled_name = obj['mangled_name']
+        if 'name' in obj:
+            self.name = obj['name']
+
         self.ctype = self.var['ctype']
         self.pytype = self.var['pytype']
 
@@ -112,7 +116,7 @@ class fVar(object):
 
 class fParam(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.param = obj['param']
         self.value = self.param['value']
         self.pytype = self.param['pytype']
         if self.pytype == 'quad':

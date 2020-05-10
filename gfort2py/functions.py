@@ -45,7 +45,15 @@ class captureStdOut():
 
 class fFunc(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        if 'proc' in obj:
+            self.proc = obj['proc']
+        if 'mangled_name' in obj:
+            self.mangled_name = obj['mangled_name']
+        if 'arg' in obj:
+            self.arg = obj['arg']
+        if 'name' in obj:
+            self.name = obj['name']
+
         self._func = None
         self._extra_pre = []
         self._args = []
@@ -127,7 +135,6 @@ class fFunc(object):
                     ret = self._return.from_func(ret)
 
             dummy_args = {}
-            count = 0
 
             for value, obj, ne in zip(
                     self._args_in[start:end], self._args[start:end], needs_extra[start:end]):
