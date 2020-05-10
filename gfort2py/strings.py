@@ -9,7 +9,8 @@ _NULL_BYTE = ctypes.c_char(b'\0').value
 
 class fStr(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.var = obj['var']
+        self.mangled_name = obj['mangled_name']
         self.ctype = self.var['ctype']
 
         self.len = int(self.var['length'])

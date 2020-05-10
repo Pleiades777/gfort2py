@@ -13,7 +13,8 @@ from .errors import *
 
 class fVar(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.var = obj['var']
+        self.mangled_name = obj['mangled_name']
         self.ctype = self.var['ctype']
         self.pytype = self.var['pytype']
 

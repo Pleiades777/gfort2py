@@ -7,13 +7,14 @@ try:
 except ImportError:
     import builtins as __builtin__
 
+import numpy as np
 from .var import fVar, fParam
 from .errors import *
 
-
 class fComplex(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.var = obj['var']
+        self.mangled_name = obj['mangled_name']
         self.ctype = self.var['ctype']
         self.pytype = self.var['pytype']
 
@@ -95,7 +96,7 @@ class fComplex(object):
 
 class fParamComplex(object):
     def __init__(self, obj):
-        self.__dict__.update(obj)
+        self.param = obj['param']
         self.value = self.param['value']
         self.pytype = self.param['pytype']
         self.pytype = complex
