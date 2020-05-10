@@ -137,7 +137,7 @@ class TestDTMethods(unittest.TestCase):
         v=np.array([9,10,11,12,13],dtype='int32')
         np_test.assert_array_equal(x.f_struct.d_int_point_1d,v)
         
-        
+    @unittest.skip("Skipping due to recurisve dt support") 
     def test_recur_dt(self): # Skip for now
         with self.assertRaises(AttributeError) as cm:
             x.r_recur.a_int=9
