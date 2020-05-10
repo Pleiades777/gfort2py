@@ -9,8 +9,6 @@ except ImportError:
 
 import numpy as np
 
-from .var import fVar, fParam
-from .errors import *
 from .ctypes import get_complex
 
 class fComplex(object):

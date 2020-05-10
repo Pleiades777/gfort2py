@@ -2,12 +2,10 @@
 from __future__ import print_function
 
 import ctypes
-import os
 import copy
 import collections
 import numpy as np
 
-from .errors import *
 from .selector import _selectVar
 
 

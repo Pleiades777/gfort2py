@@ -3,17 +3,10 @@ from __future__ import print_function
 
 import ctypes
 import pickle
-import numpy as np
 import errno
-import sys
 
-from .cmplx import fComplex, fParamComplex
-from .arrays import fExplicitArray, fDummyArray, fParamArray
+from .types import _alldtdefs
 from .functions import fFunc, fFuncPtr
-from .strings import fStr
-from .types import fDerivedType, _alldtdefs
-from .var import fVar, fParam
-from .errors import *
 
 from .selector import _selectVar
 
@@ -22,10 +15,6 @@ from . import version
 from . import parseMod as pm
 
 WARN_ON_SKIP = False
-
-if sys.version_info[0] < 3:
-    FileNotFoundError = IOError
-
 
 class fFort(object):
     _initialized = False

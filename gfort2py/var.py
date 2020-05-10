@@ -8,7 +8,7 @@ except ImportError:
 import ctypes
 import numpy as np
 
-from .errors import *
+from .errors import IgnoreReturnError
 
 
 class fVar(object):

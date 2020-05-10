@@ -3,12 +3,10 @@ from __future__ import print_function
 
 import ctypes
 import os
-import six
 import select
 import collections
 
 from .strings import fStr, fStrLen
-from .errors import *
 from .selector import _selectVar
 
 _TEST_FLAG = os.environ.get("_GFORT2PY_TEST_FLAG") is not None

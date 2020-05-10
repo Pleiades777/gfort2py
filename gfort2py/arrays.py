@@ -9,9 +9,8 @@ try:
 except ImportError:
     import builtins as __builtin__
 
-from .var import fVar, fParam
-from .fnumpy import *
-from .errors import *
+from .fnumpy import remove_ownership
+from .errors import AllocationError, IgnoreReturnError
 
 _index_t = ctypes.c_int64
 _size_t = ctypes.c_int64
@@ -173,7 +172,7 @@ class fExplicitArray(object):
         ctypes.memmove(ctypes.addressof(c), v_addr, self.sizeof())
         remove_ownership(self._value)
 
-    #def set(self, value):
+    # def set(self, value):
     #    self._set(self.in_dll(), value)
 
     def in_dll(self, lib):

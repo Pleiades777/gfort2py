@@ -2,7 +2,7 @@
 from __future__ import print_function
 import ctypes
 
-from .errors import *
+from .errors import IgnoreReturnError
 
 _NULL_BYTE = ctypes.c_char(b'\0').value
 
@@ -16,6 +16,7 @@ class fStr(object):
             self.name = obj['name']
 
         self.ctype = self.var['ctype']
+        self._safe_ctype = None
 
         self.len = int(self.var['length'])
         self.pytype = str

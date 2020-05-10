@@ -3,7 +3,7 @@ from __future__ import print_function
 
 
 from .cmplx import fComplex, fParamComplex
-from .arrays import fExplicitArray, fDummyArray, fParamArray, fAssumedShape, fAssumedSize
+from .arrays import fExplicitArray, fParamArray, fAssumedShape, fAssumedSize
 from .strings import fStr
 from .var import fVar, fParam
 

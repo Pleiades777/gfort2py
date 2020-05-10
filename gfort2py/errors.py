@@ -9,3 +9,4 @@ class AllocationError(Exception):
 
 class IgnoreReturnError(Exception):
     pass
+
