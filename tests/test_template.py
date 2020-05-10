@@ -19,8 +19,8 @@ from io import BytesIO
 #Decreases recursion depth to make debugging easier
 # sys.setrecursionlimit(10)
 
-SO = './'+__file__+'.so'
-MOD = __file__+'.mod'
+SO = './tests/XX.so'
+MOD = './tests/XX.mod'
 
 x=gf.fFort(SO,MOD,rerun=True)
 

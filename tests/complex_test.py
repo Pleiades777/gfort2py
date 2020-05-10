@@ -19,8 +19,8 @@ from io import BytesIO
 #Decreases recursion depth to make debugging easier
 # sys.setrecursionlimit(10)
 
-SO = './complex.so'
-MOD ='./comp.mod'
+SO = './tests/complex.so'
+MOD ='./tests/comp.mod'
 
 x=gf.fFort(SO,MOD,rerun=True)
 

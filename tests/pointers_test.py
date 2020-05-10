@@ -19,8 +19,8 @@ from io import BytesIO
 #Decreases recursion depth to make debugging easier
 # sys.setrecursionlimit(10)
 
-SO = './pointers.so'
-MOD ='./ptrs.mod'
+SO = './tests/pointers.so'
+MOD = './tests/ptrs.mod'
 
 x=gf.fFort(SO,MOD,rerun=True)
 

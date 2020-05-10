@@ -20,8 +20,8 @@ from io import BytesIO
 # sys.setrecursionlimit(10)
 
 
-SO = __file__.replace('_test.py','')+'.so'
-MOD =__file__.replace('_test.py','')+'.mod'
+SO = './tests/basic.so'
+MOD ='./tests/basic.mod'
 
 x=gf.fFort(SO,MOD,rerun=True)
 
