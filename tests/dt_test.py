@@ -139,7 +139,7 @@ class TestDTMethods(unittest.TestCase):
         
         
     def test_recur_dt(self): # Skip for now
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(AttributeError) as cm:
             x.r_recur.a_int=9
             self.assertEqual(x.r_recur.a_int,9)
             x.r_recur.s_recur.a_int=9
