@@ -8,8 +8,10 @@ except ImportError:
     import builtins as __builtin__
 
 import numpy as np
+
 from .var import fVar, fParam
 from .errors import *
+from .ctypes import get_complex
 
 class fComplex(object):
     def __init__(self, obj):
@@ -28,11 +30,7 @@ class fComplex(object):
 
         self._single_ctype = getattr(ctypes, self.ctype)
 
-        class _complex(ctypes.Structure):
-            _fields_ = [('real', self._single_ctype),
-                        ('imag', self._single_ctype)]
-
-        self.ctype = _complex
+        self.ctype = get_complex(self._single_ctype)
 
     def from_address(self, addr):
         return self.ctype.from_address(addr)
