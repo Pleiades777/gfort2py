@@ -18,6 +18,12 @@ module strings
     character(len=10) :: a_str_set='abcdefghjk'
     character(:), allocatable :: str_alloc
     
+    character(len=10), dimension(5) :: b_str10_exp_1d
+    character(len=10), dimension(5,5) :: b_str10_exp_2d
+
+    character(len=10), dimension(:), allocatable :: c_str10_alloc_1d
+    character(len=10), dimension(:,:), allocatable :: c_str10_alloc_2d
+
     
     contains
     
@@ -97,5 +103,156 @@ module strings
         sz = len_trim(s)
     end function str_int_len
           
+
+    subroutine sub_set_b_str10_exp_1d(s)
+        character(len=10), intent(in) :: s
+        integer :: i
+
+        do i=lbound(b_str10_exp_1d,dim=1),ubound(b_str10_exp_1d,dim=1)
+            b_str10_exp_1d(i) = s
+        end do
+
+    end subroutine sub_set_b_str10_exp_1d
+
+
+    logical function sub_check_b_str10_exp_1d(s)
+        character(len=10), intent(in) :: s
+        integer :: i
+
+        sub_check_b_str10_exp_1d = .true.
+        do i=lbound(b_str10_exp_1d,dim=1),ubound(b_str10_exp_1d,dim=1)
+            if(b_str10_exp_1d(i) /= s)  sub_check_b_str10_exp_1d = .false.
+        end do
+
+    end function sub_check_b_str10_exp_1d
+
+
+    subroutine sub_set_b_str10_exp_2d(s)
+        character(len=10), intent(in) :: s
+        integer :: i,j
+
+        do i=lbound(b_str10_exp_2d,dim=1),ubound(b_str10_exp_2d,dim=1)
+            do j=lbound(b_str10_exp_2d,dim=2),ubound(b_str10_exp_2d,dim=2)
+                b_str10_exp_2d(i,j) = s
+            end do
+        end do
+
+    end subroutine sub_set_b_str10_exp_2d
+
+
+    logical function sub_check_b_str10_exp_2d(s)
+        character(len=10), intent(in) :: s
+        integer :: i, j
+
+        sub_check_b_str10_exp_2d = .true.
+        do i=lbound(b_str10_exp_2d,dim=1),ubound(b_str10_exp_2d,dim=1)
+            do j=lbound(b_str10_exp_2d,dim=2),ubound(b_str10_exp_2d,dim=2)
+                if(b_str10_exp_2d(i,j) /= s)  sub_check_b_str10_exp_2d = .false.
+            end do
+        end do
+
+    end function sub_check_b_str10_exp_2d
+
+
+    subroutine clear_strs()
+
+        b_str10_exp_1d = ''
+        b_str10_exp_2d = ''
+
+
+    end subroutine clear_strs
+
+
+    subroutine sub_print_assumed(s1,s2)
+        character(len=10), dimension(:) :: s1
+        character(len=10), dimension(:,:) :: s2
+
+        write(*,*) s1(1),s2(1,1)
+
+
+    end subroutine sub_print_assumed
+
+
+    subroutine sub_set_c_str10_alloc_1d(s)
+        character(len=10), intent(in) :: s
+        integer :: i
+
+        do i=lbound(c_str10_alloc_1d,dim=1),ubound(c_str10_alloc_1d,dim=1)
+            c_str10_alloc_1d(i) = s
+        end do
+
+    end subroutine sub_set_c_str10_alloc_1d
+
+
+    logical function sub_check_c_str10_alloc_1d(s)
+        character(len=10), intent(in) :: s
+        integer :: i
+
+        sub_check_c_str10_alloc_1d = .true.
+        do i=lbound(c_str10_alloc_1d,dim=1),ubound(c_str10_alloc_1d,dim=1)
+            if(c_str10_alloc_1d(i) /= s)  sub_check_c_str10_alloc_1d = .false.
+        end do
+
+    end function sub_check_c_str10_alloc_1d
+
+
+    subroutine sub_set_c_str10_alloc_2d(s)
+        character(len=10), intent(in) :: s
+        integer :: i,j
+
+        do i=lbound(c_str10_alloc_2d,dim=1),ubound(c_str10_alloc_2d,dim=1)
+            do j=lbound(c_str10_alloc_2d,dim=2),ubound(c_str10_alloc_2d,dim=2)
+                c_str10_alloc_2d(i,j) = s
+            end do
+        end do
+
+    end subroutine sub_set_c_str10_alloc_2d
+
+
+    logical function sub_check_c_str10_alloc_2d(s)
+        character(len=10), intent(in) :: s
+        integer :: i, j
+
+        sub_check_c_str10_alloc_2d = .true.
+        do i=lbound(c_str10_alloc_2d,dim=1),ubound(c_str10_alloc_2d,dim=1)
+            do j=lbound(c_str10_alloc_2d,dim=2),ubound(c_str10_alloc_2d,dim=2)
+                if(c_str10_alloc_2d(i,j) /= s)  sub_check_c_str10_alloc_2d = .false.
+            end do
+        end do
+
+    end function sub_check_c_str10_alloc_2d
+
+
+    subroutine clear_strs_alloc()
+
+        c_str10_alloc_1d = ''
+        c_str10_alloc_2d = ''
+
+
+    end subroutine clear_strs_alloc
+
+    subroutine sub_dealloc_strs
+
+        if(allocated(c_str10_alloc_1d)) deallocate(c_str10_alloc_1d)
+        if(allocated(c_str10_alloc_2d)) deallocate(c_str10_alloc_2d)
+
+    end subroutine sub_dealloc_strs
+
+    subroutine sub_alloc_strs
+
+        if(.not.allocated(c_str10_alloc_1d)) allocate(c_str10_alloc_1d(10))
+        if(.not.allocated(c_str10_alloc_2d)) allocate(c_str10_alloc_2d(10,10))
+
+    end subroutine sub_alloc_strs
+
+
+    subroutine sub_print_exp(s1,s2)
+        character(len=10), dimension(:) :: s1
+        character(len=10), dimension(:,:) :: s2
+
+        write(*,*) s1(1),s2(1,1)
+
+
+    end subroutine sub_print_exp
 
 end module strings
