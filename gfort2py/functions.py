@@ -118,6 +118,8 @@ class fFunc(object):
 
         self._args_in = args_in + extra_post
 
+        #return self._args_in
+
         with captureStdOut() as cs:
             ret = self._func(*self._args_in)
 

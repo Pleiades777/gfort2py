@@ -14,16 +14,14 @@
     },
     "python.testing.unittestArgs": [
         "-v",
-        "-s",
-        "./tests",
-        "-p",
-        "*_test.py"
+        "-s", "tests",
+        "-p", "*_test.py",
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": true,
-    "python.testing.cwd": "${workspaceFolder}/tests",
+    "python.testing.cwd": "${workspaceFolder}",
     "python.linting.pylintArgs": [
-        "--disable=W0614"
+        "--disable=W0614,C"
     ]
 }

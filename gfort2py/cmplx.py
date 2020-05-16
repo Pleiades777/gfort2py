@@ -9,7 +9,7 @@ except ImportError:
 
 import numpy as np
 
-from .ctypes import get_complex
+from .descriptors import make_complex
 
 class fComplex(object):
     def __init__(self, obj):
@@ -32,7 +32,7 @@ class fComplex(object):
 
         self._single_ctype = getattr(ctypes, self.ctype)
 
-        self.ctype = get_complex(self._single_ctype)
+        self.ctype = make_complex(self._single_ctype)
 
     def from_address(self, addr):
         return self.ctype.from_address(addr)
