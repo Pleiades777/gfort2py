@@ -14,8 +14,7 @@ import subprocess
 import numpy.testing as np_test
 
 from contextlib import contextmanager
-from io import StringIO
-from io import BytesIO
+from io import StringIO, BytesIO
 
 #Decreases recursion depth to make debugging easier
 # sys.setrecursionlimit(10)
