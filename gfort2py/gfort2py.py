@@ -1,6 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
-
 import ctypes
 import pickle
 import errno
@@ -16,7 +14,7 @@ from . import parseMod as pm
 
 WARN_ON_SKIP = False
 
-class fFort(object):
+class fFort():
     _initialized = False
 
     def __init__(self, libname, ffile, rerun=False):

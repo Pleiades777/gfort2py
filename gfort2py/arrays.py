@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
 import ctypes
-import sys
 import numpy as np
 
 try:
@@ -19,7 +17,7 @@ class BadFortranArray(Exception):
     pass
 
 
-class fExplicitArray(object):
+class fExplicitArray():
     """ Wrapper for gfortrans explicit arrays
 
     These inclide:
@@ -67,6 +65,7 @@ class fExplicitArray(object):
             self.ctype = self.ctype * self.size()
 
         self._shape = self.shape()
+        self._value = None
 
     def from_address(self, addr):
         """ Create a numpy array from address
@@ -161,14 +160,11 @@ class fExplicitArray(object):
         if v.shape != self._shape and not self._shape == -1:
             raise AttributeError("Bad shape for array")
 
-        self._value = v
-
-        self._value = np.asfortranarray(self._value .astype(self._dtype))
+        self._save_value(v)
         v_addr = self._value.ctypes.data
 
         # print(v.shape,v.itemsize,v.size*v.itemsize,self._dtype,self.sizeof(),c)
         ctypes.memmove(ctypes.addressof(c), v_addr, self.sizeof())
-        remove_ownership(self._value)
 
     # def set(self, value):
     #    self._set(self.in_dll(), value)
@@ -234,6 +230,10 @@ class fExplicitArray(object):
         """
         return ctypes.sizeof(self.ctype)
 
+    def _save_value(self, value):
+        self._value = np.asfortranarray(value.astype(self._dtype))
+        remove_ownership(self._value)
+
 
 class fDummyArray(object):
     """Wrapper for gfortrans dummy arrays
@@ -278,19 +278,19 @@ class fDummyArray(object):
         else:
             raise NotImplementedError("Type not supported yet ", self.pytype)
 
-        self._array_desc = arrayDescriptor(self.ndim, elem=self.ctype_elem)
-        self.ctype = self._array_desc.ctype
-
+        self.array_desc = arrayDescriptor(self.ndim, elem=self.ctype_elem)
+        self.ctype = self.array_desc.ctype
+        self._value = None
 
     def from_address(self, addr):
-        v = self._array_desc.from_address(addr)
+        self.array_desc.from_address(addr)
         buff = {
-            'data': (self._array_desc.base_addr,
+            'data': (self.array_desc.base_addr,
                      False),
             'typestr': self._dtype,
-            'shape': self._array_desc.shape,
+            'shape': self.array_desc.shape,
             'version': 3,
-            'strides': self._array_desc.strides
+            'strides': self.array_desc.strides
         }
 
         class numpy_holder():
@@ -305,34 +305,34 @@ class fDummyArray(object):
 
     def set_from_address(self, addr, value):
         self._save_value(value)
-        self._array_desc.set(addr, np.shape(self._value))
+        self.array_desc.set(addr, np.shape(self._value))
 
     def in_dll(self, lib):
-        self._array_desc.in_dll(lib, self.mangled_name)
-        if not self._array_desc.isAllocated():
+        self.array_desc.in_dll(lib, self.mangled_name)
+        if not self.array_desc.isAllocated():
             raise AllocationError("Array not allocated yet")
-        return self.from_address(self._array_desc.addressof())
+        return self.from_address(self.array_desc.addressof())
 
     def _save_value(self, value):
         self._value = np.asfortranarray(value.astype(self._dtype))
         remove_ownership(self._value)
 
     def set_in_dll(self, lib, value):
-        self._array_desc.in_dll(lib, self.mangled_name)
+        self.array_desc.in_dll(lib, self.mangled_name)
         self._save_value(value)
-        self._array_desc.set(self._value.ctypes.data, np.shape(self._value))
+        self.array_desc.set(self._value.ctypes.data, np.shape(self._value))
 
     def from_param(self, value):
         if self._array['atype'] == 'alloc' or self._array['atype'] == 'pointer':
             if value is not None:
                 self._save_value(value)
-                self._array_desc.set(self._value.ctypes.data, np.shape(self._value))
+                self.array_desc.set(self._value.ctypes.data, np.shape(self._value))
 
-            return self._array_desc.pointer()
+            return self.array_desc.pointer()
         else:
             self._save_value(value)
-            self._array_desc.set(self._value.ctypes.data, np.shape(self._value))
-            return self._array_desc.from_param()
+            self.array_desc.set(self._value.ctypes.data, np.shape(self._value))
+            return self.array_desc.from_param()
 
     def from_func(self, pointer):
         x = pointer
@@ -364,9 +364,9 @@ class fAssumedShape(fDummyArray):
     def from_param(self, value):
         if value is not None:
             self._save_value(value)
-            self._array_desc.set(self._value.ctypes.data, np.shape(self._value))
+            self.array_desc.set(self._value.ctypes.data, np.shape(self._value))
 
-        return self._array_desc.pointer()
+        return self.array_desc.pointer()
 
     def from_func(self, pointer):
         return self.from_address(ctypes.addressof(pointer.contents))
@@ -384,10 +384,9 @@ class fAssumedSize(fExplicitArray):
 
     # Only difference between this and an fExplicitArray is we don't know the shape.
     # We just pass the pointer to first element
-    pass
 
 
-class fParamArray(object):
+class fParamArray():
     """ Wrapper for gfortran's parameter arrays
 
     These include:

@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
 import ctypes
 import numpy as np
 import sys
@@ -92,12 +91,13 @@ def _make_fAlloc15(ndims):
 
 
 
-class arrayDescriptor(object): 
+class arrayDescriptor(): 
     def __init__(self, ndims, elem):
         self.ndims = ndims
         self.ctype = _make_fAlloc15(self.ndims)
         self._ictype = None # Instance of self.ctype()
         self.elem = elem # The basic type (int, derived type, etc) of one unit of the array
+        self._p = None
 
     def allocate(self):
         self._ictype = self.ctype()
@@ -155,7 +155,7 @@ class arrayDescriptor(object):
         addr = ctypes.addressof(self._ictype) + ind * ctypes.sizeof(self.elem)
 
         x = self.elem.from_address(addr)
-        x = value
+        x.value = value
 
     def _index(self, key):
         if isinstance(key, tuple):

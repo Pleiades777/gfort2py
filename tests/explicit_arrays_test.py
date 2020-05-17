@@ -9,7 +9,6 @@ import gfort2py as gf
 
 import unittest as unittest
     
-import subprocess
 import numpy.testing as np_test
 
 from contextlib import contextmanager
@@ -268,7 +267,7 @@ class TestExplicitArrayMethods(unittest.TestCase):
         # Github issue #13
         i=5
         y = x.func_mesh_exp(i)
-        self.assertEqual(y.result,np.arrange(0,i))
+        self.assertEqual(y.result,np.arange(0,i))
         
     def test_check_exp_2d_2m3(self):
         # Github issue #19

@@ -271,52 +271,6 @@ class TestDummyArrayMethods(unittest.TestCase):
         v[:]=1
         np_test.assert_array_equal(x.c_real_dp_alloc_5d,v)
         y=x.sub_alloc_real_dp_1d_cleanup()
-        
-    def test_c_real_dp_alloc_1d_set(self):
-        y=x.sub_alloc_real_dp_1d_cleanup()
-        y=x.sub_alloc_real_dp_1d_arrs()
-        v=np.zeros([5])
-        v[:]=2.0
-        x.c_real_dp_alloc_1d = v
-        np_test.assert_array_equal(x.c_real_dp_alloc_1d,v)
-        y=x.sub_alloc_real_dp_1d_cleanup()
-    
-    def test_c_real_dp_alloc_2d_set(self):
-        y=x.sub_alloc_real_dp_1d_cleanup()
-        y=x.sub_alloc_real_dp_1d_arrs()
-        v=np.zeros([5,5])
-        v[:]=2.0
-        x.c_real_dp_alloc_2d = v
-        np_test.assert_array_equal(x.c_real_dp_alloc_2d,v)
-        y=x.sub_alloc_real_dp_1d_cleanup()
-    
-    def test_c_real_dp_alloc_3d_set(self):
-        y=x.sub_alloc_real_dp_1d_cleanup()
-        y=x.sub_alloc_real_dp_1d_arrs()
-        v=np.zeros([5,5,5])
-        v[:]=2.0
-        x.c_real_dp_alloc_3d = v
-        np_test.assert_array_equal(x.c_real_dp_alloc_3d,v)
-        y=x.sub_alloc_real_dp_1d_cleanup()
-  
-    def test_c_real_dp_alloc_4d_set(self):
-        y=x.sub_alloc_real_dp_1d_cleanup()
-        y=x.sub_alloc_real_dp_1d_arrs()
-        v=np.zeros([5,5,5,5])
-        v[:]=2.0
-        x.c_real_dp_alloc_4d = v
-        np_test.assert_array_equal(x.c_real_dp_alloc_4d,v)
-        y=x.sub_alloc_real_dp_1d_cleanup()
-    
-    def test_c_real_dp_alloc_5d_set(self):
-        y=x.sub_alloc_real_dp_1d_cleanup()
-        y=x.sub_alloc_real_dp_1d_arrs()
-        v=np.zeros([5,5,5,5,5])
-        v[:]=2.0
-        x.c_real_dp_alloc_5d = v
-        np_test.assert_array_equal(x.c_real_dp_alloc_5d,v)
-        y=x.sub_alloc_real_dp_1d_cleanup()
-        
     
     def test_func_assumed_shape_arr_1d(self):
         v=np.zeros([5],dtype='int32')

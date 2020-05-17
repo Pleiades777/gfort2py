@@ -1,7 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
-
-
 from .cmplx import fComplex, fParamComplex
 from .arrays import fExplicitArray, fParamArray, fAssumedShape, fAssumedSize
 from .strings import fStr
@@ -32,7 +29,7 @@ def _selectVar(obj):
             array = obj['var']['array']['atype']
             if array == 'explicit':
                 x = fExplicitArray
-            elif array == 'assumed_shape' or array == 'alloc' or array == 'pointer':
+            elif any(array in i for i in ['assumed_shape','alloc','pointer']):
                 x = fAssumedShape
             elif array == 'assumed_size':
                 x = fAssumedSize

@@ -197,6 +197,7 @@ module dt
     
     logical function func_check_f_struct()
     
+        func_check_f_struct = .true.
         write(*,*)         f_struct%a_int,loc(f_struct%a_int)
         write(*,*)         f_struct%a_int_lp  ,loc(f_struct%a_int_lp)      
         write(*,*)         f_struct%a_real,loc(f_struct%a_real)

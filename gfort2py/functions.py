@@ -1,6 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
-
 import ctypes
 import os
 import select
@@ -41,10 +39,13 @@ class captureStdOut():
             os.close(self.stdout)
 
 
-class fFunc(object):
+class fFunc():
     def __init__(self, obj):
         if 'proc' in obj:
             self.proc = obj['proc']
+            self._sub = self.proc['sub']
+        else:
+            self._sub = False
         if 'mangled_name' in obj:
             self.mangled_name = obj['mangled_name']
         if 'arg' in obj:
@@ -62,7 +63,6 @@ class fFunc(object):
         self._DEBUG = False
 
     def in_dll(self, lib):
-        self._sub = self.proc['sub']
         self.lib = lib
 
         self._args = self._init_args()

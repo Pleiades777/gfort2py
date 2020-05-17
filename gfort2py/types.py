@@ -1,6 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
-
 import ctypes
 import copy
 import collections
@@ -17,7 +15,7 @@ class emptyDT(ctypes.Structure):
         pass
 
 
-class fDerivedType(object):
+class fDerivedType():
     def __init__(self, obj):
         self._obj = obj
         self.var = obj['var']

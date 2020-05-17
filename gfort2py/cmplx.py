@@ -1,17 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
 import ctypes
-
-try:
-    import __builtin__
-except ImportError:
-    import builtins as __builtin__
-
+import builtins
 import numpy as np
 
 from .descriptors import make_complex
 
-class fComplex(object):
+class fComplex():
     def __init__(self, obj):
         self.var = obj['var']
         if 'mangled_name' in obj:
@@ -28,7 +22,7 @@ class fComplex(object):
             self.pytype = int
             self.ctype = 'c_int32'
         else:
-            self.pytype = getattr(__builtin__, self.pytype)
+            self.pytype = getattr(builtins, self.pytype)
 
         self._single_ctype = getattr(ctypes, self.ctype)
 
@@ -94,7 +88,7 @@ class fComplex(object):
         return ctypes.sizeof(self.ctype)
 
 
-class fParamComplex(object):
+class fParamComplex():
     def __init__(self, obj):
         self.param = obj['param']
         self.value = self.param['value']

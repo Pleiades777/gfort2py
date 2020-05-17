@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
 import ctypes
 
 from .errors import IgnoreReturnError
@@ -7,7 +6,7 @@ from .errors import IgnoreReturnError
 _NULL_BYTE = ctypes.c_char(b'\0').value
 
 
-class fStr(object):
+class fStr():
     def __init__(self, obj):
         self.var = obj['var']
         if 'mangled_name' in obj:
@@ -134,7 +133,7 @@ class fStr(object):
         return out
 
 
-class fStrLen(object):
+class fStrLen():
     # Handles the hidden string length functions need
     def __init__(self):
         self.ctype = ctypes.c_int64

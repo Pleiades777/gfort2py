@@ -1,17 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0+
-from __future__ import print_function
-try:
-    import __builtin__
-except ImportError:
-    import builtins as __builtin__
-
+import builtins
 import ctypes
 import numpy as np
 
 from .errors import IgnoreReturnError
 
 
-class fVar(object):
+class fVar():
     def __init__(self, obj):
         self.var = obj['var']
         if 'mangled_name' in obj:
@@ -28,7 +23,7 @@ class fVar(object):
             self.pytype = bool
             self.ctype = 'c_int32'
         else:
-            self.pytype = getattr(__builtin__, self.pytype)
+            self.pytype = getattr(builtins, self.pytype)
 
         self.ctype = getattr(ctypes, self.ctype)
 
@@ -114,7 +109,7 @@ class fVar(object):
         self.ctype.in_dll(lib, self.mangled_name).value = value
 
 
-class fParam(object):
+class fParam():
     def __init__(self, obj):
         self.param = obj['param']
         self.value = self.param['value']
@@ -125,7 +120,7 @@ class fParam(object):
             self.pytype = bool
             self.ctype = 'c_int32'
         else:
-            self.pytype = getattr(__builtin__, self.pytype)
+            self.pytype = getattr(builtins, self.pytype)
 
     def set_in_dll(self, lib, value):
         """
