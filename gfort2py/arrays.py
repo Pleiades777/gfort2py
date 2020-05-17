@@ -20,6 +20,15 @@ class BadFortranArray(Exception):
 
 
 class fExplicitArray(object):
+    """ Wrapper for gfortrans explicit arrays
+
+    These inclide:
+        dimension(5)
+        dimension(N)
+
+    Arguments:
+        object {dict} -- Dictionary containg the objects properties
+    """
     def __init__(self, obj):
         self.var = obj['var']
         if 'mangled_name' in obj:
@@ -60,9 +69,16 @@ class fExplicitArray(object):
         self._shape = self.shape()
 
     def from_address(self, addr):
-        self._base_holder = addr  # Make sure to hold onto the object
+        """ Create a numpy array from address
+
+        Arguments:
+            addr {[int]} -- Address for the start of an array
+
+        Returns:
+            [array] -- Returns a numpy array from the address addr
+        """
         buff = {
-            'data': (self._base_holder,
+            'data': (addr,
                      False),
             'typestr': self._dtype,
             'shape': self._shape,
@@ -82,6 +98,11 @@ class fExplicitArray(object):
         return arr
 
     def strides(self):
+        """Compute the array strides
+
+        Returns:
+            [tuple(ints)] -- Get the strides of the array in bytes
+        """
         if self._shape == -1:
             return None
 
@@ -92,6 +113,11 @@ class fExplicitArray(object):
         return tuple(strides)
 
     def shape(self):
+        """ Compute the shape of an array
+
+        Returns:
+            [tuple(ints)] -- Tuple of array shape in python form
+        """
         if 'shape' not in self.array or len(
                 self.array['shape']) / self._ndims != 2:
             return -1
@@ -102,13 +128,33 @@ class fExplicitArray(object):
         return tuple(shape)
 
     def size(self):
+        """ Size of array
+
+        Returns:
+            [int] -- Total number of elements in the array
+        """
         return np.product(self.shape())
 
     def set_from_address(self, addr, value):
+        """ Set an array given by addr to value
+
+        Arguments:
+            addr {[int]} -- Destination address
+            value {[array]} -- Source array
+        """
         ctype = self.ctype.from_address(addr)
         self._set(ctype, value)
 
     def _set(self, c, v):
+        """ Sets array given by a ctype to value
+
+        Arguments:
+            c {[ctype]} -- Instance of self.ctype to act as destination
+            v {[array]} -- Source array
+
+        Raises:
+            AttributeError: If the number of dimensions or shape does not match
+        """
         if v.ndim != self._ndims:
             raise AttributeError("Bad ndims for array")
 
@@ -128,14 +174,37 @@ class fExplicitArray(object):
     #    self._set(self.in_dll(), value)
 
     def in_dll(self, lib):
+        """Look up array in library
+
+        Arguments:
+            lib {[object]} -- ctypes loadlibraray() 
+
+        Returns:
+            [array] -- Numpy array given by self.mangled_name
+        """
         addr = ctypes.addressof(self.ctype.in_dll(lib, self.mangled_name))
         return self.from_address(addr)
 
     def set_in_dll(self, lib, value):
+        """ Set up array in library
+
+        Arguments:
+            lib {[object]} -- ctypes loadlibraray() 
+            value {[array]} -- Numpy array to copy
+
+        """
         addr = ctypes.addressof(self.ctype.in_dll(lib, self.mangled_name))
         self.set_from_address(addr, value)
 
     def from_param(self, value):
+        """ Convert input array into form suitable for passing to a function
+
+        Arguments:
+            value {[array]} -- Numpy array to copy
+
+        Returns:
+            [ctype] -- ctype representation of value
+        """
         size = np.size(value)
 
         if self.shape() == -1:
@@ -147,13 +216,37 @@ class fExplicitArray(object):
         return self._safe_ctype
 
     def from_func(self, pointer):
+        """ Convert output from a function back into a numpy array
+
+        Arguments:
+            pointer {[ctype]} -- ctype representation of an array
+
+        Returns:
+            [array] -- Returned numpy array from function
+        """
         return self.from_address(ctypes.addressof(pointer))
 
     def sizeof(self):
+        """ Compute total size of array
+
+        Returns:
+            [int] -- Size of array in bytes
+        """
         return ctypes.sizeof(self.ctype)
 
 
 class fDummyArray(object):
+    """Wrapper for gfortrans dummy arrays
+
+    These inclide:
+        dimension(:)
+        dimension(:), allocatable
+        dimension(:), pointer
+        dimension(:), target
+
+    Arguments:
+        object {dict} -- Dictionary containg the objects properties
+    """
     def __init__(self, obj):
         self.var = obj['var']
         if 'mangled_name' in obj:
@@ -259,6 +352,14 @@ class fDummyArray(object):
 
 
 class fAssumedShape(fDummyArray):
+    """ Wrapper for gfortran's assumed shape arrays
+
+    These include:
+        dimension(:)
+
+    Arguments:
+        object {dict} -- Dictionary containg the objects properties
+    """
 
     def from_param(self, value):
         if value is not None:
@@ -272,12 +373,29 @@ class fAssumedShape(fDummyArray):
 
 
 class fAssumedSize(fExplicitArray):
+    """ Wrapper for gfortrans assumed size arrays
+
+    These include:
+        dimension(*)
+
+    Arguments:
+        object {dict} -- Dictionary containg the objects properties
+    """
+
     # Only difference between this and an fExplicitArray is we don't know the shape.
     # We just pass the pointer to first element
     pass
 
 
 class fParamArray(object):
+    """ Wrapper for gfortran's parameter arrays
+
+    These include:
+        dimension(5),parameter
+
+    Arguments:
+        object {dict} -- Dictionary containg the objects properties
+    """
     def __init__(self, obj):
         self.param = obj['param']
         self.pytype = self.param['pytype']
@@ -289,13 +407,13 @@ class fParamArray(object):
 
     def set_in_dll(self, lib, value):
         """
-        Cant set a parameter
+        Can't set a parameter
         """
         raise ValueError("Can't alter a parameter")
 
     def in_dll(self, lib):
         """
-        A parameters value is stored in the dict, as we cant access them
+        A parameters value is stored in the dict, as we can't access them
         from the shared lib.
         """
         return self.value
