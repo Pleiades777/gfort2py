@@ -246,11 +246,12 @@ module strings
     end subroutine sub_alloc_strs
 
 
-    subroutine sub_print_exp(s1,s2)
+    subroutine sub_print_exp(s1,s2, s3)
         character(len=10), dimension(:) :: s1
         character(len=10), dimension(:,:) :: s2
+        character(len=*), dimension(:,:) :: s3
 
-        write(*,*) s1(1),s2(1,1)
+        write(*,*) s1(1),s2(1,1),s3(1,1)
 
 
     end subroutine sub_print_exp
