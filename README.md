@@ -120,7 +120,7 @@ If the derived type contains another derived type then you can set a dict in a d
 x.my_dt={'x':1,'y':{'a':1}}
 ````
 
-This can then be accessed either via:
+This can then be accessed via:
 
 ````python
 x.my_dt.y
@@ -203,10 +203,11 @@ To run unit tests
 - [ ] Keyword arguments
 - [ ] Generic/Elemental functions
 - [x] Functions as an argument
+- [ ] Assumed rank arrays 
 
 ### Accessing common block elements
 
-There's no direct way to access the common block elements, but if you declare the the common block as a module variable you may access the elements by their name:
+There's no direct way to access the common block elements, but if you declare the common block as a module variable you may access the elements by their name:
 
 
 ````fortran
@@ -241,14 +242,14 @@ end function my_func
     
 ````
 
-Assuming that func_arg is another fortran function then we can call my_func as:
+Assuming that func_arg is another fortran function (that returns an integer) then we can call my_func as:
 
 
 ````python
 x.my_func(x.func_arg) # With the function itself
 ````
 
-It is left the the user to make sure that the function func_arg takes the correct inputs and returns the correct output
+It is left the user to make sure that the function func_arg takes the correct inputs and returns the correct output
 
 
 #### Procedure pointers
@@ -266,16 +267,15 @@ This can be set similar to how we handle functions as arguments:
 x.func_ptr = x.func_arg # With the function itself
 ````
 
-Its left the the user to make sure that the function func_arg takes the correct inputs and returns the correct output. If you have a function
-that accepts a function pointer then its the same as if the it just accepted a function argument
+Its left the user to make sure that the function func_arg takes the correct inputs and returns the correct output. If you have a function that accepts a function pointer then it is the same as if it just accepted a function argument.
 
-If func_ptr already points a a function at compile time:
+If func_ptr already points to a function at compile time:
 
 ````fortran
 procedure(my_func), pointer:: func_ptr => my_func
 ````
 
-You must still first set it to something
+You must still first set it to something before use:
 
 ````python
 x.func_ptr = x.func_arg # With the function itself
