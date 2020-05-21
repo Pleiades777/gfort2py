@@ -174,7 +174,8 @@ To run unit tests
 - [X] Procedure pointers inside derived types (only those that are nopass)
 - [X] Derived types with dimension(:) array components (pointer, allocatable, target)
 - [ ] Allocatable strings
-- [ ] Arrays of strings
+- [x] Explicit rrays of strings
+- [ ] Assumed arrays of strings
 - [ ] Classes
 - [ ] Abstract interfaces
 - [x] Common blocks (parital)
@@ -196,7 +197,8 @@ To run unit tests
 - [x] Passing characters of fixed size (len=10 or len=* etc)
 - [x] Functions that return a character as their result
 - [ ] Allocatable strings
-- [ ] Arrays of strings
+- [x] Explicit rrays of strings
+- [ ] Assumed arrays of strings
 - [x] Pointer arguments 
 - [x] Optional arguments
 - [x] Value arguments

@@ -18,11 +18,7 @@ def _selectVar(obj):
         else:
             x = fParam
     elif 'var' in obj:
-        if obj['var']['pytype'] == 'str':
-            x = fStr
-        elif obj['var']['pytype'] == 'complex':
-            x = fComplex
-        elif 'dt' in obj['var'] and obj['var']['dt']:
+        if 'dt' in obj['var'] and obj['var']['dt']:
             from .types import fDerivedType
             x = fDerivedType
         elif 'array' in obj['var']:
@@ -33,6 +29,10 @@ def _selectVar(obj):
                 x = fAssumedShape
             elif array == 'assumed_size':
                 x = fAssumedSize
+        elif obj['var']['pytype'] == 'str':
+            x = fStr
+        elif obj['var']['pytype'] == 'complex':
+            x = fComplex
         elif 'is_func' in obj['var'] and obj['var']['is_func']:
             from .functions import fFuncPtr
             x = fFuncPtr

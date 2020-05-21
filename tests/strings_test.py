@@ -110,7 +110,45 @@ class TestStringMethods(unittest.TestCase):
         y = x.check_str_alloc(2)    
         self.assertEqual(y.result,True)
 
-    
+    def test_b_str10_exp_1d(self):
+        x.clear_strs()
+        empty = np.array([b' '*10]*5, dtype='|S10')
+
+        np_test.assert_array_equal(x.b_str10_exp_1d, empty)
+
+        test = 'abcdefghik'
+        x.sub_set_b_str10_exp_1d(test)
+        y=x.sub_check_b_str10_exp_1d(test)
+        self.assertEqual(y.result,True)
+        testArr=np.array([test]*5, dtype='|S10')
+        np_test.assert_array_equal(x.b_str10_exp_1d, testArr)
+
+    def test_b_str10_exp_1d_bad_len(self):
+        x.clear_strs()
+        empty = np.array([b' '*10]*5, dtype='|S10')
+
+        np_test.assert_array_equal(x.b_str10_exp_1d, empty)
+
+        test = 'abcdefg'
+        x.sub_set_b_str10_exp_1d(test)
+        y=x.sub_check_b_str10_exp_1d(test)
+        self.assertEqual(y.result,True)
+        testArr=np.array([test]*5, dtype='|S10')
+        np_test.assert_array_equal(x.b_str10_exp_1d, testArr)
+
+    def test_b_str10_exp_2d(self):
+        x.clear_strs()
+        empty = np.array([b' '*10]*25, dtype='|S10').reshape(5,5)
+
+        np_test.assert_array_equal(x.b_str10_exp_2d, empty)   
+
+        test = 'abcdefghik'
+        x.sub_set_b_str10_exp_2d(test)
+        y=x.sub_check_b_str10_exp_2d(test)
+        self.assertEqual(y.result,True)
+        testArr=np.array([test]*25, dtype='|S10').reshape(5,5)
+        np_test.assert_array_equal(x.b_str10_exp_2d, testArr)
+
     
 if __name__ == '__main__':
     unittest.main() 

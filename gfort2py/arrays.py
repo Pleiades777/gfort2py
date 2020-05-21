@@ -50,14 +50,10 @@ class fExplicitArray():
             self.pytype = getattr(__builtin__, self.pytype)
 
         self.ctype = getattr(ctypes, self.ctype)
-        self._sof_ctype = ctypes.sizeof(self.ctype)
-
-        if self.pytype == int:
-            self._dtype = 'int' + str(8 * ctypes.sizeof(self.ctype))
-        elif self.pytype == float:
-            self._dtype = 'float' + str(8 * ctypes.sizeof(self.ctype))
+        if 'length' in self.var:
+            self._sof_ctype = self.var['length'] * ctypes.sizeof(ctypes.c_char)
         else:
-            raise NotImplementedError("Type not supported ", self.pytype)
+            self._sof_ctype = ctypes.sizeof(self.ctype)
 
         self._ndims = int(self.array['ndim'])
 
@@ -79,7 +75,7 @@ class fExplicitArray():
         buff = {
             'data': (addr,
                      False),
-            'typestr': self._dtype,
+            'typestr': self.dtype,
             'shape': self._shape,
             'version': 3,
             'strides': self.strides()
@@ -95,6 +91,17 @@ class fExplicitArray():
         remove_ownership(arr)
 
         return arr
+
+    @property
+    def dtype(self):
+        if self.pytype == int:
+            return 'int' + str(8 * self._sof_ctype)
+        elif self.pytype == float:
+            return 'float' + str(8 * self._sof_ctype)
+        elif self.pytype == str:
+            return '|S' + str(self._sof_ctype)
+        else:
+            raise NotImplementedError("Type not supported ", self.pytype)
 
     def strides(self):
         """Compute the array strides
@@ -132,7 +139,10 @@ class fExplicitArray():
         Returns:
             [int] -- Total number of elements in the array
         """
-        return np.product(self.shape())
+        if 'length' in self.var:
+            return np.product(self.shape()) * self.var['length']
+        else:
+            return np.product(self.shape())
 
     def set_from_address(self, addr, value):
         """ Set an array given by addr to value
@@ -163,7 +173,7 @@ class fExplicitArray():
         self._save_value(v)
         v_addr = self._value.ctypes.data
 
-        # print(v.shape,v.itemsize,v.size*v.itemsize,self._dtype,self.sizeof(),c)
+        # print(v.shape,v.itemsize,v.size*v.itemsize,self.dtype,self.sizeof(),c)
         ctypes.memmove(ctypes.addressof(c), v_addr, self.sizeof())
 
     # def set(self, value):
@@ -231,7 +241,7 @@ class fExplicitArray():
         return ctypes.sizeof(self.ctype)
 
     def _save_value(self, value):
-        self._value = np.asfortranarray(value.astype(self._dtype))
+        self._value = np.asfortranarray(value.astype(self.dtype))
         remove_ownership(self._value)
 
 
@@ -271,13 +281,6 @@ class fDummyArray(object):
         self.ctype_elem = getattr(ctypes, self.ctype_elem)
         self._sof_ctype = ctypes.sizeof(self.ctype_elem)
 
-        if self.pytype == int:
-            self._dtype = 'int' + str(8 * ctypes.sizeof(self.ctype_elem))
-        elif self.pytype == float:
-            self._dtype = 'float' + str(8 * ctypes.sizeof(self.ctype_elem))
-        else:
-            raise NotImplementedError("Type not supported yet ", self.pytype)
-
         self.array_desc = arrayDescriptor(self.ndim, elem=self.ctype_elem)
         self.ctype = self.array_desc.ctype
         self._value = None
@@ -287,7 +290,7 @@ class fDummyArray(object):
         buff = {
             'data': (self.array_desc.base_addr,
                      False),
-            'typestr': self._dtype,
+            'typestr': self.dtype,
             'shape': self.array_desc.shape,
             'version': 3,
             'strides': self.array_desc.strides
@@ -303,6 +306,18 @@ class fDummyArray(object):
 
         return arr
 
+    @property
+    def dtype(self):
+        if self.pytype == int:
+            return 'int' + str(8 * self._sof_ctype)
+        elif self.pytype == float:
+            return 'float' + str(8 * self._sof_ctype)
+        elif self.pytype == str:
+            return 'U' + str(self.var['length'])
+        else:
+            raise NotImplementedError("Type not supported ", self.pytype)
+
+
     def set_from_address(self, addr, value):
         self._save_value(value)
         self.array_desc.set(addr, np.shape(self._value))
@@ -314,7 +329,7 @@ class fDummyArray(object):
         return self.from_address(self.array_desc.addressof())
 
     def _save_value(self, value):
-        self._value = np.asfortranarray(value.astype(self._dtype))
+        self._value = np.asfortranarray(value.astype(self.dtype))
         remove_ownership(self._value)
 
     def set_in_dll(self, lib, value):
