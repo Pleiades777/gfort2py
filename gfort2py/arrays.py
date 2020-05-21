@@ -17,50 +17,38 @@ class BadFortranArray(Exception):
     pass
 
 
-class fExplicitArray():
-    """ Wrapper for gfortrans explicit arrays
 
-    These inclide:
-        dimension(5)
-        dimension(N)
-
-    Arguments:
-        object {dict} -- Dictionary containg the objects properties
-    """
+class fArray():
     def __init__(self, obj):
         self.var = obj['var']
         if 'mangled_name' in obj:
             self.mangled_name = obj['mangled_name']
+
         self._array = True
         if 'name' in obj:
             self.name = obj['name']
 
         if 'array' in self.var:
-            self.array = obj['var']['array']
+            self.array = obj['var']['array'] 
 
-        self.ctype = self.var['ctype']
-        self.pytype = self.var['pytype']
+        self.ctype_elem = getattr(ctypes, self.var['ctype'])
 
-        if self.pytype == 'quad':
+        if self.var['pytype'] == 'quad':
             self.pytype = np.longdouble
-        elif self.pytype == 'bool':
+        elif self.var['pytype'] == 'bool':
             self.pytype = int
-            self.ctype = 'c_int32'
+            self.ctype_elem = ctypes.c_int32
         else:
-            self.pytype = getattr(__builtin__, self.pytype)
+            self.pytype = getattr(__builtin__, self.var['pytype'])
 
-        self.ctype = getattr(ctypes, self.ctype)
+
         if 'length' in self.var:
             self._sof_ctype = self.var['length'] * ctypes.sizeof(ctypes.c_char)
         else:
-            self._sof_ctype = ctypes.sizeof(self.ctype)
+            self._sof_ctype = ctypes.sizeof(self.ctype_elem)
 
-        self._ndims = int(self.array['ndim'])
+        self.ndim = int(self.array['ndim'])
 
-        if self.size() > 0:
-            self.ctype = self.ctype * self.size()
-
-        self._shape = self.shape()
         self._value = None
 
     def from_address(self, addr):
@@ -72,13 +60,14 @@ class fExplicitArray():
         Returns:
             [array] -- Returns a numpy array from the address addr
         """
+
         buff = {
             'data': (addr,
                      False),
             'typestr': self.dtype,
-            'shape': self._shape,
+            'shape': self.shape,
             'version': 3,
-            'strides': self.strides()
+            'strides': self.strides
         }
 
         class numpy_holder():
@@ -103,29 +92,34 @@ class fExplicitArray():
         else:
             raise NotImplementedError("Type not supported ", self.pytype)
 
+    @property
     def strides(self):
         """Compute the array strides
 
         Returns:
             [tuple(ints)] -- Get the strides of the array in bytes
         """
-        if self._shape == -1:
+        if self.shape == -1:
             return None
 
         strides = [self._sof_ctype]
-        for i in self._shape[:-1]:
+        for i in self.shape[:-1]:
             strides.append(strides[-1] * i)
 
         return tuple(strides)
 
+    @property
     def shape(self):
         """ Compute the shape of an array
 
         Returns:
             [tuple(ints)] -- Tuple of array shape in python form
         """
+        if hasattr(self,'_shape'):
+            return self._shape
+
         if 'shape' not in self.array or len(
-                self.array['shape']) / self._ndims != 2:
+                self.array['shape']) / self.ndim != 2:
             return -1
 
         shape = []
@@ -133,6 +127,7 @@ class fExplicitArray():
             shape.append(u - l + 1)
         return tuple(shape)
 
+    @property
     def size(self):
         """ Size of array
 
@@ -140,9 +135,32 @@ class fExplicitArray():
             [int] -- Total number of elements in the array
         """
         if 'length' in self.var:
-            return np.product(self.shape()) * self.var['length']
+            return np.product(self.shape * self.var['length'])
+        elif hasattr(self,'_size'):
+            return self._size
         else:
-            return np.product(self.shape())
+            return np.product(self.shape)
+
+    def _save_value(self, value):
+        self._value = np.asfortranarray(value.astype(self.dtype))
+        remove_ownership(self._value)
+
+
+    def sizeof(self):
+        """ Compute total size of array
+
+        Returns:
+            [int] -- Size of array in bytes
+        """
+        return ctypes.sizeof(self.ctype)
+
+class fExplicitArray(fArray):
+    @property
+    def ctype(self):
+        if self.size > 0:
+            return self.ctype_elem * self.size
+        else:
+            return None
 
     def set_from_address(self, addr, value):
         """ Set an array given by addr to value
@@ -164,10 +182,10 @@ class fExplicitArray():
         Raises:
             AttributeError: If the number of dimensions or shape does not match
         """
-        if v.ndim != self._ndims:
+        if v.ndim != self.ndim:
             raise AttributeError("Bad ndims for array")
 
-        if v.shape != self._shape and not self._shape == -1:
+        if v.shape != self.shape and not self.shape == -1:
             raise AttributeError("Bad shape for array")
 
         self._save_value(v)
@@ -175,9 +193,6 @@ class fExplicitArray():
 
         # print(v.shape,v.itemsize,v.size*v.itemsize,self.dtype,self.sizeof(),c)
         ctypes.memmove(ctypes.addressof(c), v_addr, self.sizeof())
-
-    # def set(self, value):
-    #    self._set(self.in_dll(), value)
 
     def in_dll(self, lib):
         """Look up array in library
@@ -211,11 +226,11 @@ class fExplicitArray():
         Returns:
             [ctype] -- ctype representation of value
         """
-        size = np.size(value)
+        self._size = np.size(value)
 
-        if self.shape() == -1:
-            self._shape = value.shape
-            self.ctype = self.ctype * size
+        if self.shape == -1:
+            self._shape = np.shape(value)
+
 
         self._safe_ctype = self.ctype()
         self._set(self._safe_ctype, value)
@@ -232,20 +247,8 @@ class fExplicitArray():
         """
         return self.from_address(ctypes.addressof(pointer))
 
-    def sizeof(self):
-        """ Compute total size of array
 
-        Returns:
-            [int] -- Size of array in bytes
-        """
-        return ctypes.sizeof(self.ctype)
-
-    def _save_value(self, value):
-        self._value = np.asfortranarray(value.astype(self.dtype))
-        remove_ownership(self._value)
-
-
-class fDummyArray(object):
+class fDummyArray(fArray):
     """Wrapper for gfortrans dummy arrays
 
     These inclide:
@@ -258,64 +261,25 @@ class fDummyArray(object):
         object {dict} -- Dictionary containg the objects properties
     """
     def __init__(self, obj):
-        self.var = obj['var']
-        if 'mangled_name' in obj:
-            self.mangled_name = obj['mangled_name']
-        self._array = self.var['array']
-        if 'name' in obj:
-            self.name = obj['name']
-
-        self.ndim = int(self._array['ndim'])
-
-        self.ctype_elem = self.var['ctype']
-        self.pytype = self.var['pytype']
-
-        if self.pytype == 'quad':
-            self.pytype = np.longdouble
-        elif self.pytype == 'bool':
-            self.pytype = int
-            self.ctype_elem = 'c_int32'
-        else:
-            self.pytype = getattr(__builtin__, self.pytype)
-
-        self.ctype_elem = getattr(ctypes, self.ctype_elem)
-        self._sof_ctype = ctypes.sizeof(self.ctype_elem)
+        super().__init__(obj)
 
         self.array_desc = arrayDescriptor(self.ndim, elem=self.ctype_elem)
-        self.ctype = self.array_desc.ctype
-        self._value = None
+
+    @property
+    def ctype(self):
+        return self.array_desc.ctype
 
     def from_address(self, addr):
         self.array_desc.from_address(addr)
-        buff = {
-            'data': (self.array_desc.base_addr,
-                     False),
-            'typestr': self.dtype,
-            'shape': self.array_desc.shape,
-            'version': 3,
-            'strides': self.array_desc.strides
-        }
-
-        class numpy_holder():
-            pass
-
-        holder = numpy_holder()
-        holder.__array_interface__ = buff
-        arr = np.asfortranarray(holder)
-        remove_ownership(arr)
-
-        return arr
+        return super().from_address(self.array_desc.base_addr)
 
     @property
-    def dtype(self):
-        if self.pytype == int:
-            return 'int' + str(8 * self._sof_ctype)
-        elif self.pytype == float:
-            return 'float' + str(8 * self._sof_ctype)
-        elif self.pytype == str:
-            return 'U' + str(self.var['length'])
-        else:
-            raise NotImplementedError("Type not supported ", self.pytype)
+    def strides(self):
+        return self.array_desc.strides
+
+    @property
+    def shape(self):
+        return self.array_desc.shape
 
 
     def set_from_address(self, addr, value):
@@ -366,6 +330,7 @@ class fDummyArray(object):
             raise IgnoreReturnError
 
 
+
 class fAssumedShape(fDummyArray):
     """ Wrapper for gfortran's assumed shape arrays
 
@@ -399,6 +364,31 @@ class fAssumedSize(fExplicitArray):
 
     # Only difference between this and an fExplicitArray is we don't know the shape.
     # We just pass the pointer to first element
+
+    def from_param(self, value):
+        """ Convert input array into form suitable for passing to a function
+
+        Arguments:
+            value {[array]} -- Numpy array to copy
+
+        Returns:
+            [ctype] -- ctype representation of value
+        """
+        self._size = np.size(value)
+
+        self._shape = value.shape
+
+        self._safe_ctype = self.ctype()
+        self._set(self._safe_ctype, value)
+        return self._safe_ctype
+
+    @property
+    def shape(self):
+        if hasattr(self,'_shape'):
+            return self._shape
+        else:
+            return super().shape
+
 
 
 class fParamArray():
