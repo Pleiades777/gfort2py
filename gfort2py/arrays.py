@@ -38,14 +38,17 @@ class fArray():
         elif self.var['pytype'] == 'bool':
             self.pytype = int
             self.ctype_elem = ctypes.c_int32
+        elif self.var['pytype'] =='str':
+            self.pytype = str
+            self.ctype_elem = ctypes.c_char
         else:
             self.pytype = getattr(__builtin__, self.var['pytype'])
 
 
         if 'length' in self.var:
-            self._sof_ctype = self.var['length'] * ctypes.sizeof(ctypes.c_char)
-        else:
-            self._sof_ctype = ctypes.sizeof(self.ctype_elem)
+            self.ctype_elem = self.ctype_elem * self.var['length']
+        
+        self._sof_ctype = ctypes.sizeof(self.ctype_elem)
 
         self.ndim = int(self.array['ndim'])
 

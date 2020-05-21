@@ -254,16 +254,23 @@ class arrayDescriptor():
         self._ictype.type = ftype
 
     def get_ftype(self):
-        if any([isinstance(self.elem(), c) for c in [ctypes.c_int, ctypes.c_int32, ctypes.c_int64]]):
+
+        elem = self.elem()
+
+        if hasattr(elem,'_type_'):
+            if callable(elem._type_):
+                elem = elem._type_()
+
+        if any([isinstance(elem, c) for c in [ctypes.c_int, ctypes.c_int32, ctypes.c_int64]]):
             ftype = _BT_INTEGER
-        elif any([isinstance(self.elem(), c) for c in [ctypes.c_float, ctypes.c_double]]):
+        elif any([isinstance(elem, c) for c in [ctypes.c_float, ctypes.c_double]]):
             ftype = _BT_REAL
-        elif isinstance(self.elem(), ctypes.c_bool):
+        elif isinstance(elem, ctypes.c_bool):
             ftype = _BT_LOGICAL
-        elif isinstance(self.elem(), ctypes.c_char):
+        elif any([isinstance(elem, c) for c in [ctypes.c_char, ctypes.c_char_p]]): 
             ftype = _BT_CHARACTER
-        elif isinstance(self.elem(), ctypes.Structure):
-            if isinstance(self.elem(), _complex):
+        elif isinstance(elem, ctypes.Structure):
+            if isinstance(elem, _complex):
                 ftype = _BT_COMPLEX
             else: 
                 ftype = _BT_DERIVED
