@@ -183,6 +183,28 @@ module strings
 
     end subroutine sub_set_c_str10_alloc_1d
 
+    subroutine sub_str10_explict_N(N,s)
+        integer, intent(in) :: N
+        character(len=10),dimension(N) intent(in) :: s
+        integer :: i
+
+        do i=lbound(s,dim=1),ubound(s,dim=1)
+            s(i) = 'zxcvbnm'
+        end do
+
+    end subroutine sub_str10_explict_N
+
+    subroutine sub_strM_explict_N(N,M,s)
+        integer, intent(in) :: N,M
+        character(len=M),dimension(N) intent(in) :: s
+        integer :: i
+
+        do i=lbound(s,dim=1),ubound(s,dim=1)
+            s(i) = 'zxcvbnm'
+        end do
+
+    end subroutine sub_strM_explict_N
+
 
     logical function sub_check_c_str10_alloc_1d(s)
         character(len=10), intent(in) :: s

@@ -157,6 +157,12 @@ class fArray():
         """
         return ctypes.sizeof(self.ctype)
 
+
+    def from_len(self, string, length):
+        self.length = length
+        return self.from_func(string)
+
+
 class fExplicitArray(fArray):
     @property
     def ctype(self):
@@ -331,8 +337,7 @@ class fDummyArray(fArray):
             return self.from_address(ctypes.addressof(x))
         except AttributeError:
             raise IgnoreReturnError
-
-
+            
 
 class fAssumedShape(fDummyArray):
     """ Wrapper for gfortran's assumed shape arrays
@@ -424,3 +429,15 @@ class fParamArray():
         from the shared lib.
         """
         return self.value
+
+
+class fStrLenArray():
+    # Handles the hidden string length functions need
+    def __init__(self):
+        self.ctype = ctypes.c_int64
+
+    def from_param(self, value):
+        return self.ctype(value.dtype.itemsize)
+
+    def from_func(self, pointer):
+        raise IgnoreReturnError

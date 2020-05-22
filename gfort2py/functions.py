@@ -3,8 +3,10 @@ import ctypes
 import os
 import select
 import collections
+import numpy as np
 
 from .strings import fStr, fStrLen
+from .arrays import fArray, fStrLenArray
 from .selector import _selectVar
 
 _TEST_FLAG = os.environ.get("_GFORT2PY_TEST_FLAG") is not None
@@ -101,17 +103,16 @@ class fFunc():
             needs_extra = [False, False]
 
         for value, ctype in zip(args, self._args[start:]):
-            if isinstance(value, str) or isinstance(value, bytes):
+            if self._needs_extra(value):
                 needs_extra.append(True)
             else:
                 needs_extra.append(False)
             args_in.append(ctype.from_param(value))
 
         # Now handle adding string lengths to end of argument list
-        for a in self._args[len(
-                self.arg):]:  # self.arg is the list of normal arguments
+        for a in self._args[len(self.arg):]:  # self.arg is the list of normal arguments
             for v in args:
-                if isinstance(v, str) or isinstance(v, bytes):
+                if self._needs_extra(v):
                     extra_post.append(a.from_param(v))
 
         end = start + len(self.arg)
@@ -171,9 +172,11 @@ class fFunc():
         for i in self.arg:
             x = self._get_fvar(i)(i)
 
-            if isinstance(
-                    x, fStr):  # Need a string length at the end of the argument list
+            if isinstance(x, fStr):  # Need a string length at the end of the argument list
                 extras.append(fStrLen())
+            if isinstance(x, fArray):  # Need a string length at the end of the argument list
+                extras.append(fStrLenArray())
+
             args.append(x)
 
         args.extend(extras)
@@ -184,6 +187,10 @@ class fFunc():
 
     def _isSet(self, lib):
         pass
+
+
+    def _needs_extra(self, x):
+        return isinstance(x, str) or isinstance(x, bytes) or (isinstance(x,np.ndarray) and x.dtype.char=='S')
 
 
 class fFuncPtr(fFunc):
