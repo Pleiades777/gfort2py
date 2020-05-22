@@ -103,6 +103,7 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(x.a_real,99.0)
         self.assertEqual(x.a_real_dp,99.0)
 
+    @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
     def test_sub_alter_mod_qp(self):
         y=x.sub_alter_mod()
         self.assertEqual(x.a_real_qp.hex(),'0x0.c63f35ba6f8242be10917ca377d20p+7')
