@@ -185,7 +185,7 @@ module strings
 
     subroutine sub_str10_explict_N(N,s)
         integer, intent(in) :: N
-        character(len=10),dimension(N) intent(in) :: s
+        character(len=10),dimension(N), intent(inout) :: s
         integer :: i
 
         do i=lbound(s,dim=1),ubound(s,dim=1)
@@ -196,7 +196,7 @@ module strings
 
     subroutine sub_strM_explict_N(N,M,s)
         integer, intent(in) :: N,M
-        character(len=M),dimension(N) intent(in) :: s
+        character(len=M),dimension(N), intent(inout) :: s
         integer :: i
 
         do i=lbound(s,dim=1),ubound(s,dim=1)
