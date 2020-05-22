@@ -35,6 +35,8 @@ class fArray():
 
         if self.var['pytype'] == 'quad':
             self.pytype = np.longdouble
+            self.ctype = 'c_longdouble'
+            print("Quad precision not supported, will add 16 bytes of padding")
         elif self.var['pytype'] == 'bool':
             self.pytype = int
             self.ctype_elem = ctypes.c_int32

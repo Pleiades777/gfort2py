@@ -64,7 +64,8 @@ class TestPtrsMethods(unittest.TestCase):
         v=1.0
         x.a_real_dp_point=v
         self.assertEqual(x.a_real_dp_point,v)
-        
+
+    @unittest.skip("Skipping due to quad support")	    
     def test_a_real_qp_point(self):
         v=1.0
         x.a_real_qp_point=v
@@ -94,7 +95,8 @@ class TestPtrsMethods(unittest.TestCase):
         v=1.0
         x.a_real_dp_target=v
         self.assertEqual(x.a_real_dp_target,v)
-        
+
+    @unittest.skip("Skipping due to quad support")	        
     def test_a_real_qp_target(self):
         v=1.0
         x.a_real_qp_target=v

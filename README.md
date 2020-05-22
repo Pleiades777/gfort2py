@@ -181,7 +181,7 @@ To run unit tests
 - [x] Common blocks (parital)
 - [ ] Equivalences 
 - [ ] Namelists
-- [ ] Quad precision variables
+- [x] Quad precision variables *partial support
 
 ### Procedures
 
@@ -206,6 +206,11 @@ To run unit tests
 - [ ] Generic/Elemental functions
 - [x] Functions as an argument
 - [ ] Assumed rank arrays 
+
+### Quad precision varaibles
+
+At this time gfort2py only supports reading module level variables that are quad thus you can not set them nor
+pass them to a function. To support quad's you must have the bigfloat package installed (available in pip)
 
 ### Accessing common block elements
 

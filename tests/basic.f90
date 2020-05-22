@@ -116,8 +116,16 @@ module basic
             a_int_lp=99_lp
             a_real=99.0
             a_real_dp=99.0_dp
-            a_real_qp=99.0_qp
+            a_real_qp=99.123456789123456798123456789123456798_qp
         end subroutine sub_alter_mod
+
+        subroutine sub_print_qp(x)
+            real(real128) :: x
+
+            write(*,'(f64.60)') x
+            write(*,'(B128)') x
+        
+        end subroutine sub_print_qp
       
         logical function func_check_mod()
             func_check_mod = .false.

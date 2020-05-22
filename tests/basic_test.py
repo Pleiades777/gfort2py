@@ -56,7 +56,7 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(x.a_int,v)
     
     def test_a_int_str(self):
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ValueError) as cm:
             x.a_int='abc'
             
     def test_a_real(self):
@@ -65,7 +65,7 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(x.a_real,v)
     
     def test_a_real_str(self):	
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ValueError) as cm:
             x.a_real='abc'
         
     def test_const_int_set(self):	
@@ -102,11 +102,10 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(x.a_int_lp,99)
         self.assertEqual(x.a_real,99.0)
         self.assertEqual(x.a_real_dp,99.0)
-        
-    @unittest.skip("Skipping due to quad support")	
+
     def test_sub_alter_mod_qp(self):
         y=x.sub_alter_mod()
-        self.assertEqual(x.a_real_qp,99.0)
+        self.assertEqual(x.a_real_qp.hex(),'0x0.c63f35ba6f8242be10917ca377d20p+7')
 
     def test_func_int_in(self):
         v=5
