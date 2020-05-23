@@ -52,7 +52,8 @@ setup(name='gfort2py',
       extras_require={
 		'dev': [
 			'coveralls',
-			'unittest2'
+			'unittest2',
+			'bigfloat'
 			]
 		}
      )
