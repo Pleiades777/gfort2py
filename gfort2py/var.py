@@ -114,11 +114,8 @@ class fVar():
 
         """
         x = pointer
-        if hasattr(pointer, 'contents'):
-            if hasattr(pointer.contents, 'contents'):
-                x = pointer.contents.contents
-            else:
-                x = pointer.contents
+        while hasattr(x, 'contents'):
+            x = x.contents
 
         if hasattr(x, 'value'):
             x = x.value
@@ -205,42 +202,43 @@ def _quad2bytes(quad):
     if not isinstance(quad,bf.BigFloat):
         quad = bf.BigFloat(quad,bf.quadruple_precision)
 
-    bb = [0]*128
-    if quad < 0:
-        sign ='1'
-    else:
-        sign = '0'
-    #print(quad)
-    bb[0] = sign
-
-    bb = [0]*128
-    if quad < 0:
-        sign ='1'
-    else:
-        sign = '0'
-    #print(quad)
-    bb[0] = sign
-
-    exp = int(bf.BigFloat(bf.log2(quad)))
-    #print(exp)
-    sig = (quad /( 2**exp)) -1
-    #print(sig)
-    bb[1:16] = bin(exp+16383)[2:].ljust(15,'0')
-
-    for i in range(0,112):
-        if sig >= pow2bf[i]:
-            bb[i+16] = '1'
-            sig = sig - pow2bf[i]
-        else:
-            bb[i+16] = '0'
-        #print(x,bb[i+16],sig)
-
-    bb=''.join(bb)
     ba=[0]*16
-    for i in range(16):
-        ba[i] = int(bb[i*8:(i+1)*8].ljust(8,'0'),base=2)
+    if not quad==bf.BigFloat(0):
+        bb = [0]*128
+        if quad < 0:
+            sign ='1'
+        else:
+            sign = '0'
+        #print(quad)
+        bb[0] = sign
 
-    ba=ba[::-1]
+        bb = [0]*128
+        if quad < 0:
+            sign ='1'
+        else:
+            sign = '0'
+        #print(quad)
+        bb[0] = sign
+
+        exp = int(bf.BigFloat(bf.log2(quad)))
+        #print(exp)
+        sig = (quad /( 2**exp)) -1
+        #print(sig)
+        bb[1:16] = bin(exp+16383)[2:].ljust(15,'0')
+
+        for i in range(0,112):
+            if sig >= pow2bf[i]:
+                bb[i+16] = '1'
+                sig = sig - pow2bf[i]
+            else:
+                bb[i+16] = '0'
+            #print(x,bb[i+16],sig)
+
+        bb=''.join(bb)
+        for i in range(16):
+            ba[i] = int(bb[i*8:(i+1)*8].ljust(8,'0'),base=2)
+
+        ba=ba[::-1]
 
     c = ctypes.c_byte * 16
     cc = c()
