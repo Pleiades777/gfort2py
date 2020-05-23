@@ -117,6 +117,7 @@ module basic
             a_real=99.0
             a_real_dp=99.0_dp
             a_real_qp=99.123456789123456798123456789123456798_qp
+            !write(*,'(B128)') a_real_qp
         end subroutine sub_alter_mod
 
         subroutine sub_print_qp(x)
@@ -218,5 +219,21 @@ module basic
         
         end subroutine sub_use_mod
    
+
+        real(qp) function func_ret_quad(x)
+            real(qp) :: x
+
+            func_ret_quad = 2*x
+
+        end function func_ret_quad
+
+        subroutine sub_quad_intentout(x,y,z)
+            integer :: x 
+            real(qp),intent(out) :: y ! Put in the middle to make sure we dont clobber neighbouring values
+            real(qp) :: z
+
+            y = x*z
+
+        end subroutine sub_quad_intentout
 
 end module basic

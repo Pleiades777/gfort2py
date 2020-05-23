@@ -21,6 +21,19 @@ or install via pip
 pip install --user gfort2py
 ````
 
+## Requirements
+
+Essential:
+
+* Numpy
+* Cython
+* six
+
+Optional:
+
+* bigfloat (for quad precision support)
+
+
 ## Why use this over other fortran to python translators?
 
 gfort2py use gfortran .mod files to translate your fortran code's ABI to python 
@@ -40,7 +53,7 @@ Compile code with -fPIC and -shared as options, then link together as a shared l
 gfortran -fPIC -shared -c file.f90
 gfortran -fPIC -shared -o libfile file.f90
 ````
-If your code comes as  program that does everything, then just turn the program into a function call inside a module,
+If your code comes as program that does everything, then just turn the program into a function call inside a module,
 then create a new file with your program that uses the module and calls the function you just made.
 
 If the shared library needs other
@@ -59,7 +72,7 @@ x=gf.fFort(SHARED_LIB_NAME,MOD_FILE_NAME)
 
 ````
 
-x now contains all variables, parameters and procedurs from the module (tab completable). 
+x now contains all variables, parameters and procedures from the module (tab completable). 
 
 ### Functions
 ````python
@@ -99,8 +112,7 @@ Remember that fortran by default has 1-based array numbering while numpy
 is 0-based.
 
 
-If a procedure expects an unallocted array, then pass None as the argument, otherwise pass a
-array of the correct shape.
+If a procedure expects an unallocted array, then pass None as the argument, otherwise pass an array of the correct shape.
 
 ### Derived types
 
@@ -181,7 +193,8 @@ To run unit tests
 - [x] Common blocks (parital)
 - [ ] Equivalences 
 - [ ] Namelists
-- [x] Quad precision variables *partial support
+- [x] Quad precision variables 
+- [] Quad precision variables arrays
 
 ### Procedures
 
@@ -206,11 +219,19 @@ To run unit tests
 - [ ] Generic/Elemental functions
 - [x] Functions as an argument
 - [ ] Assumed rank arrays 
+- [x] Quad precision variables 
+- [ ] Quad precision variables arrays
 
-### Quad precision varaibles
+### Quad precision variables
 
-At this time gfort2py only supports reading module level variables that are quad thus you can not set them nor
-pass them to a function. To support quad's you must have the bigfloat package installed (available in pip)
+To support quad's you must have the bigfloat package installed (available in pip). It is not a hard dependency as
+it needs the mpfr headers which may be difficult to install. Thus if you do not have bigfloat installed, and have quad
+installed then things should work but you will not be able to interface with the quad variable. But things like
+derived types with a quad in them will work except for accessing the quad (formally we pad the derived type with 16 bytes
+to keep things aligned).
+
+Quad's can be set either via a number (5, 5.0) or a string ('5.0'). The return value will be a bigfloat object.
+
 
 ### Accessing common block elements
 

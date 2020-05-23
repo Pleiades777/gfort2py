@@ -108,6 +108,11 @@ class TestBasicMethods(unittest.TestCase):
         y=x.sub_alter_mod()
         self.assertEqual(x.a_real_qp.hex(),'0x0.c63f35ba6f8242be10917ca377d20p+7')
 
+    @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
+    def test_sub_alter_mod_qp2(self):
+        x.a_real_qp = 50.0
+        self.assertEqual(x.a_real_qp.hex(),'0x0.c8000000000000000000000000000p+6')
+
     def test_func_int_in(self):
         v=5
         y=x.func_int_in(v)
@@ -229,7 +234,19 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(y.result,18)
         self.assertEqual(y.args['y'],9)      
 
+
+    @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
+    def test_func_ret_quad(self):
+        y = x.func_ret_quad('80.0')
     
+        self.assertEqual(y.result.hex(),'0x0.a0000000000000000000000000000p+8')
     
+    @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
+    def test_func_ret_quad(self):
+        y = x.sub_quad_intentout(5,1.0,75.21465465)
+    
+        self.assertEqual(y.args['y'].hex(),'0x0.bc0961049235f8000000000000000p+9')  
+
+
 if __name__ == '__main__':
     unittest.main() 

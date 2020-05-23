@@ -50,7 +50,7 @@ class fVar():
     def convert_from_py(self,pytype):
         if self.pytype == 'quad':
             if has_bf:
-                return _bytes2quad(ctype)
+                return _quad2bytes(pytype)
             else:
                 raise ValueError("Must install BigFloat first")
         else:
@@ -135,7 +135,13 @@ class fVar():
         return self.convert_to_py(self.ctype.in_dll(lib, self.mangled_name))
 
     def set_in_dll(self, lib, value):
-        self.ctype.in_dll(lib, self.mangled_name).value = self.convert_from_py(value).value
+        c = self.ctype.in_dll(lib, self.mangled_name)
+        if hasattr(c, 'value'):
+            self.ctype.in_dll(lib, self.mangled_name).value = self.convert_from_py(value).value
+        else:
+            cc = self.convert_from_py(value)
+            for i in range(len(c)):
+                c[i] = cc[i]
 
 
 class fParam():
@@ -165,6 +171,14 @@ class fParam():
         return self.pytype(self.value)
 
 
+
+# Precompute powers of two
+if has_bf:
+    pow2bf = []
+    for i in range(123):
+        pow2bf.append(bf.BigFloat(2,bf.quadruple_precision)**(-((i+1))))
+
+
 def _bytes2quad(bytearr):
     bb=[]
     for i in bytearray(bytearr)[::-1]:
@@ -179,7 +193,7 @@ def _bytes2quad(bytearr):
     a = int(exp,base=2)-16383
     b = bf.BigFloat(1,bf.quadruple_precision) 
     for idx,i in enumerate(sig):
-        b = b + int(i)*bf.BigFloat(2,bf.quadruple_precision)**(-((idx+1))) 
+        b = b + int(i)*pow2bf[idx]
     r = 2**a * b
     if sign == '0':
         return r
@@ -188,4 +202,52 @@ def _bytes2quad(bytearr):
 
 
 def _quad2bytes(quad):
-    raise ValueError("Can't set quad yet")
+    if not isinstance(quad,bf.BigFloat):
+        quad = bf.BigFloat(quad,bf.quadruple_precision)
+
+    bb = [0]*128
+    if quad < 0:
+        sign ='1'
+    else:
+        sign = '0'
+    #print(quad)
+    bb[0] = sign
+
+    bb = [0]*128
+    if quad < 0:
+        sign ='1'
+    else:
+        sign = '0'
+    #print(quad)
+    bb[0] = sign
+
+    exp = int(bf.BigFloat(bf.log2(quad)))
+    #print(exp)
+    sig = (quad /( 2**exp)) -1
+    #print(sig)
+    bb[1:16] = bin(exp+16383)[2:].ljust(15,'0')
+
+    for i in range(0,112):
+        if sig >= pow2bf[i]:
+            bb[i+16] = '1'
+            sig = sig - pow2bf[i]
+        else:
+            bb[i+16] = '0'
+        #print(x,bb[i+16],sig)
+
+    bb=''.join(bb)
+    ba=[0]*16
+    for i in range(16):
+        ba[i] = int(bb[i*8:(i+1)*8].ljust(8,'0'),base=2)
+
+    ba=ba[::-1]
+
+    c = ctypes.c_byte * 16
+    cc = c()
+    #print(bb)
+    for i in range(16):
+        cc[i] = ba[i]
+
+    return cc
+
+
