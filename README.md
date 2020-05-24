@@ -232,6 +232,8 @@ to keep things aligned).
 
 Quad's can be set either via a number (5, 5.0) or a string ('5.0'). The return value will be a bigfloat object.
 
+This is still partially working, you can not have a quad as a function return value, can not use numbers -1 < x < 1, or use the string version as a function argument.
+
 
 ### Accessing common block elements
 
