@@ -222,10 +222,27 @@ module basic
 
         real(qp) function func_ret_quad(x)
             real(qp) :: x
-
-            func_ret_quad = 2*x
-
+            write(*,*) x
+            func_ret_quad = x
+            write(*,'(B128)') func_ret_quad
         end function func_ret_quad
+
+        real(qp) function func_ret_quad2()
+            real(qp) :: x
+            x = 5_qp
+            write(*,*) x
+            func_ret_quad2 = x
+            write(*,'(B128)') func_ret_quad2
+        end function func_ret_quad2
+
+        subroutine sub_quad3()
+            real(qp) :: x
+            x = func_ret_quad2()
+            write(*,*) x
+            write(*,'(B128)') x
+
+        end subroutine sub_quad3
+
 
         subroutine sub_quad_intentout(x,y,z)
             integer :: x 
@@ -235,5 +252,23 @@ module basic
             y = x*z
 
         end subroutine sub_quad_intentout
+
+        logical function func_check_quad_subnorm(x)
+            integer :: x
+
+            func_check_quad_subnorm=.false.
+            if(x==1) then
+                if(a_real_qp == 0.123145798543215465789432156798413290_qp) func_check_quad_subnorm=.true.
+            else if (x==-1) then
+                if(a_real_qp == -0.123145798543215465789432156798413290_qp) func_check_quad_subnorm=.true.
+            end if
+
+            if(func_check_quad_subnorm.eqv..false.) then
+                write(*,*) a_real_qp
+                write(*,'(B128)')  a_real_qp
+                write(*,'(B128)') 0.123145798543215465789432156798413290_qp
+            end if
+
+        end function func_check_quad_subnorm
 
 end module basic

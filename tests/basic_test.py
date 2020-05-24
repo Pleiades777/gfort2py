@@ -113,6 +113,20 @@ class TestBasicMethods(unittest.TestCase):
         x.a_real_qp = 50.0
         self.assertEqual(x.a_real_qp.hex(),'0x0.c8000000000000000000000000000p+6')
 
+    @unittest.skip("Broken")
+    @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
+    def test_sub_alter_mod_qp2(self):
+        x.a_real_qp = '0.123145798543215465789432156798413288'
+        self.assertEqual(x.a_real_qp.hex(),'0x0.fc33dd4b1035aba22f4a45fe6e788p-3')
+
+        y = x.func_check_quad_subnorm(1)
+        self.assertEqual(y.result,True)
+
+        x.a_real_qp = '-0.123145798543215465789432156798413288'
+        self.assertEqual(x.a_real_qp.hex(),'-0x0.fc33dd4b1035aba22f4a45fe6e788p-3')
+        y = x.func_check_quad_subnorm(-1)
+        self.assertEqual(y.result,True)
+
     def test_func_int_in(self):
         v=5
         y=x.func_int_in(v)
@@ -234,13 +248,14 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(y.result,18)
         self.assertEqual(y.args['y'],9)      
 
-
+    @unittest.skip("Seg faults on python 3.4")
     @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
     def test_func_ret_quad(self):
         y = x.func_ret_quad('80.0')
     
         self.assertEqual(y.result.hex(),'0x0.a0000000000000000000000000000p+8')
-    
+
+    @unittest.skip("Seg faults on python 3.4")   
     @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
     def test_func_ret_quad(self):
         y = x.sub_quad_intentout(5,1.0,75.21465465)

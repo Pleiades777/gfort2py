@@ -25,7 +25,7 @@ class fVar():
         self.pytype = self.var['pytype']
 
         if self.pytype == 'quad':
-            self.ctype = ctypes.c_byte * 16
+            self.ctype = ctypes.c_ubyte * 16
         elif self.pytype == 'bool':
             self.pytype = bool
             self.ctype = ctypes.c_int32
@@ -182,49 +182,56 @@ def _bytes2quad(bytearr):
         bb.append(bin(i)[2:].rjust(8,'0'))
 
     bb=''.join(bb)
-
     sign = bb[0]
     exp = bb[1:16]
     sig = bb[16:]
 
-    a = int(exp,base=2)-16383
-    b = bf.BigFloat(1,bf.quadruple_precision) 
+    a = int(exp,base=2)
+    if a == 0:
+        a = -16382
+        b = bf.BigFloat(0,bf.quadruple_precision) 
+    else:
+        a = a-16383
+        b = bf.BigFloat(1,bf.quadruple_precision) 
+
     for idx,i in enumerate(sig):
-        b = b + int(i)*pow2bf[idx]
-    r = 2**a * b
+        b = b + bf.BigFloat(i)*pow2bf[idx]
+    r = bf.BigFloat(2)**a * b
     if sign == '0':
         return r
     else:
         return -r
-
 
 def _quad2bytes(quad):
     if not isinstance(quad,bf.BigFloat):
         quad = bf.BigFloat(quad,bf.quadruple_precision)
 
     ba=[0]*16
-    if not quad==bf.BigFloat(0):
-        bb = [0]*128
-        if quad < 0:
-            sign ='1'
-        else:
-            sign = '0'
-        #print(quad)
-        bb[0] = sign
+    if not quad.hex() == bf.BigFloat(0).hex():
 
         bb = [0]*128
         if quad < 0:
             sign ='1'
         else:
             sign = '0'
+        quad = bf.abs(quad)
         #print(quad)
         bb[0] = sign
+
 
         exp = int(bf.BigFloat(bf.log2(quad)))
-        #print(exp)
-        sig = (quad /( 2**exp)) -1
-        #print(sig)
-        bb[1:16] = bin(exp+16383)[2:].ljust(15,'0')
+
+        if exp <= -16382:
+            #print(exp)
+            exp = -16382
+            sig = (quad /( 2**exp))
+            #print(sig)
+            bb[1:16] = '0'*15
+        else:
+            #print(exp)
+            sig = bf.abs((quad /( 2**exp)) -1)
+            #print(sig)
+            bb[1:16] = bin(exp+16383)[2:].ljust(15,'0')
 
         for i in range(0,112):
             if sig >= pow2bf[i]:
@@ -240,7 +247,8 @@ def _quad2bytes(quad):
 
         ba=ba[::-1]
 
-    c = ctypes.c_byte * 16
+
+    c = ctypes.c_ubyte * 16
     cc = c()
     #print(bb)
     for i in range(16):
