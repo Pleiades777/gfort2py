@@ -149,6 +149,43 @@ class TestStringMethods(unittest.TestCase):
         testArr=np.array([test]*25, dtype='|S10').reshape(5,5)
         np_test.assert_array_equal(x.b_str10_exp_2d, testArr)
 
+
+
+    def test_c_str10_alloc_1d(self):
+        x.sub_alloc_strs()
+
+        test = 'abcdefghik'
+        v = np.array([test]*5, dtype='|S10')
+
+        x.c_str10_alloc_1d = v
+        np_test.assert_array_equal(x.c_str10_alloc_1d, v)
+
+        y = x.sub_check_c_str10_alloc_1d(test)
+        self.assertEqual(y.result,True)
+
+        test2 = 'asdfghj'
+        v = np.array([test2]*5, dtype='|S10')
+        x.sub_set_c_str10_alloc_1d(test2)
+        np_test.assert_array_equal(x.c_str10_alloc_1d, v)
+
+
+    def test_c_str10_alloc_2d(self):
+        x.sub_alloc_strs()
+
+        test = 'abcdefghik'
+        v = np.array([test]*25, dtype='|S10').reshape(5,5)
+
+        x.c_str10_alloc_2d = v
+        np_test.assert_array_equal(x.c_str10_alloc_2d, v)
+
+        y = x.sub_check_c_str10_alloc_2d(test)
+        self.assertEqual(y.result,True)        
+
+        test2 = 'asdfghj'
+        v = np.array([test2]*25, dtype='|S10').reshape(5,5)
+        x.sub_set_c_str10_alloc_2d(test2)
+        np_test.assert_array_equal(x.c_str10_alloc_2d, v)
+
     
 if __name__ == '__main__':
     unittest.main() 
