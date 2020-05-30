@@ -165,6 +165,8 @@ class fFunc():
             self._extra_pre.append(fStrLen())
 
             self._args = self._extra_pre + self._args
+        if self._return.pytype ==  'quad':
+            raise TypeError("Functions returning a quad is not supported, use a subroutine instead")
 
     def _init_args(self):
         extras = []

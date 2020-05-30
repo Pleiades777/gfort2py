@@ -248,16 +248,14 @@ class TestBasicMethods(unittest.TestCase):
         self.assertEqual(y.result,18)
         self.assertEqual(y.args['y'],9)      
 
-    @unittest.skip("Seg faults on python 3.4")
     @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
     def test_func_ret_quad(self):
-        y = x.func_ret_quad('80.0')
+        with self.assertRaises(TypeError):
+            y = x.func_ret_quad('80.0')
     
-        self.assertEqual(y.result.hex(),'0x0.a0000000000000000000000000000p+8')
-
-    @unittest.skip("Seg faults on python 3.4")   
     @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
-    def test_func_ret_quad(self):
+    def test_sub_quad_intentout(self):
+        
         y = x.sub_quad_intentout(5,1.0,75.21465465)
     
         self.assertEqual(y.args['y'].hex(),'0x0.bc0961049235f8000000000000000p+9')  
