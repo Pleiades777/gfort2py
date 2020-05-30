@@ -194,6 +194,8 @@ class TestStringMethods(unittest.TestCase):
 
         y = x.sub_strStar_explict_N(n, v)
 
+        np_test.assert_array_equal(y.args['s'],np.array([b'zxcvbnm    ', b'zxcvbnm    ', b'zxcvbnm    ', b'zxcvbnm    ',
+                 b'zxcvbnm    ', b'zxcvbnm    ', b'zxcvbnm    ', b'zxcvbnm    ']))
     
 if __name__ == '__main__':
     unittest.main() 
