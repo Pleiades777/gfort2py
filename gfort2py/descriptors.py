@@ -5,11 +5,11 @@ import sys
 
 def make_complex(ct):
 
-    class _complex(ctypes.Structure):
+    class cmplxDescriptor(ctypes.Structure):
         _fields_ = [('real', ct),
                     ('imag', ct)]
 
-    return _complex
+    return cmplxDescriptor
 
 ################33
 

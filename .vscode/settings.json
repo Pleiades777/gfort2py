@@ -23,5 +23,6 @@
     "python.testing.cwd": "${workspaceFolder}",
     "python.linting.pylintArgs": [
         "--disable=W0614,C"
-    ]
+    ],
+    "python.linting.pylintEnabled": true
 }
