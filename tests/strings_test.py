@@ -186,6 +186,14 @@ class TestStringMethods(unittest.TestCase):
         x.sub_set_c_str10_alloc_2d(test2)
         np_test.assert_array_equal(x.c_str10_alloc_2d, v)
 
+
+    def test_sub_strStar_explict_N(self):
+
+        n = 8
+        v = np.zeros(n,dtype='|S11')
+
+        y = x.sub_strStar_explict_N(n, v)
+
     
 if __name__ == '__main__':
     unittest.main() 

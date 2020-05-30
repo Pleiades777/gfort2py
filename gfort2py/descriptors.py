@@ -91,12 +91,15 @@ def _make_fAlloc15(ndims):
 
 
 
-class arrayDescriptor(): 
-    def __init__(self, ndims, elem):
+class arrayInterfaceDescriptor(): 
+    def __init__(self, ndims, elem, length=-1):
         self.ndims = ndims
         self.ctype = _make_fAlloc15(self.ndims)
         self._ictype = None # Instance of self.ctype()
-        self.elem = elem # The basic type (int, derived type, etc) of one unit of the array
+        self._elem = elem # The basic type (int, derived type, etc) of one unit of the array
+        self.length = length # The number of self.elems that make up one unit (mostly
+                                # used for strings)
+
         self._p = None
 
     def allocate(self):
@@ -228,6 +231,13 @@ class arrayDescriptor():
         self._ictype.base_addr = addr
 
 
+    @property
+    def elem(self):
+        if self.length > 1:
+            return self._elem * self.length
+        else:
+            return self._elem
+
     def get(self):
         return self._ictype
 
@@ -277,3 +287,174 @@ class arrayDescriptor():
         else:
             raise ValueError("Cant match dtype, got " + str(self.elem))
         return ftype
+
+
+##############################3
+
+
+class arrayGenericDescriptor(): 
+    def __init__(self, ndims, elem, length=-1, shape=None):
+        self.ndims = ndims
+        self._ictype = None # Instance of self.ctype()
+        self._elem = elem # The basic type (int, derived type, etc) of one unit of the array
+        self.length = length # The number of self.elems that make up one unit (mostly
+                                # used for strings)
+        self._shape = shape
+        self._p = None
+
+    def allocate(self):
+        self._ictype = self.ctype()
+
+    def isAllocated(self):
+        if self._ictype is None:
+            return False
+        return True
+
+    def pointer(self):
+        if not self.isAllocated():
+            self.allocate()
+        self._p = ctypes.pointer(self._ictype)
+        return self._p
+
+    def in_dll(self, lib, name):
+        self._ictype = self.ctype.in_dll(lib, name)
+        return self
+
+    def from_address(self, addr):
+        self._ictype = self.ctype.from_address(addr)
+        return self  
+
+    def addressof(self):
+        return ctypes.addressof(self._ictype)
+
+    def from_param(self):
+        if not self.isAllocated():
+            self.allocate()
+        return self._ictype
+
+    def __getitem__(self, key):
+        if not self.isAllocated():
+            return
+
+        if isinstance(key, slice):
+            raise NotImplementedError()
+
+        ind = self._index(key)
+
+        addr = ctypes.addressof(self._ictype) + ind * ctypes.sizeof(self.elem)
+
+        return self.elem.from_address(addr)
+
+
+    def __setitem__(self, key, value):
+        if not self.isAllocated():
+            return
+
+        if isinstance(key, slice):
+            raise NotImplementedError()
+
+        ind = self._index(key)
+
+        addr = ctypes.addressof(self._ictype) + ind * ctypes.sizeof(self.elem)
+
+        x = self.elem.from_address(addr)
+        x.value = value
+
+    def _index(self, key):
+        if isinstance(key, tuple):
+            if len(key) != self.ndims:
+                raise IndexError("Wrong number of dimensions")
+            ind = np.ravel_multi_index(key, self.shape)
+        else:
+            ind = key
+
+        if ind > self.size:
+            raise ValueError("Out of bounds")
+
+        return ind
+
+    @property
+    def ctype(self):
+        return self.elem * int(self.size)
+
+
+    @property
+    def strides(self):
+        """Compute the array strides
+
+        Returns:
+            [tuple(ints)] -- Get the strides of the array in bytes
+        """
+        if self._shape == -1:
+            return None
+
+        strides = [ctypes.sizeof(self.elem)]
+        for i in self._shape[:-1]:
+            strides.append(strides[-1] * i)
+
+        return tuple(strides)
+
+    @property
+    def shape(self):
+        """ Compute the shape of an array
+
+        Returns:
+            [tuple(ints)] -- Tuple of array shape in python form
+        """
+        if self._shape == -1:
+            return -1
+
+        # Initilize shape from parseMod 
+        if len(self._shape)/self.ndims == 2:
+            shape = []
+            for l, u in zip(self._shape[0::2], self._shape[1::2]):
+                shape.append(u - l + 1)
+            self._shape = tuple(shape)
+
+        return self._shape
+
+
+    @property
+    def size(self):
+        return np.product(self.shape)
+
+    @property
+    def sizeof(self):
+        """ Size of array
+
+        Returns:
+            [int] -- Total number of elements in the array
+        """
+        return self.size * ctypes.sizeof(self.elem)
+  
+    
+    @property
+    def base_addr(self):
+        return ctypes.addressof(self._ictype)
+
+    @base_addr.setter
+    def base_addr(self, addr):
+        ctypes.memmove(self.base_addr, addr, self.sizeof)
+
+    @property
+    def elem(self):
+        if self.length > 1:
+            return self._elem * self.length
+        else:
+            return self._elem
+
+    def get(self):
+        return self._ictype
+
+
+    def set(self, addr, shape):
+        if not self.isAllocated():
+            self.allocate()
+
+        if self.shape != -1:
+            if shape != self.shape:
+                raise AttributeError("Inconsistent shape for array") 
+
+        self._shape = shape
+        self.base_addr = addr
+ 
