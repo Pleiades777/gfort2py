@@ -175,11 +175,14 @@ class fDerivedType():
                 "Input must be a dict or an existing derived type")
 
         # Hold a chunk of memory the size of the object
-        self._safe_ctype = self._dt_desc()
-        self._addr = ctypes.addressof(self._safe_ctype)
-        self.set_all(value)
+        if isinstance(value, dict):
+            self._safe_ctype = self._dt_desc()
+            self._addr = ctypes.addressof(self._safe_ctype)
+            self.set_all(value)
 
-        ct = self._safe_ctype
+            ct = self._safe_ctype
+        else:
+            ct = value.ctype()
 
         if 'value' in self.var and self.var['value']:
             return ct
