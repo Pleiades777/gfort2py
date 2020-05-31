@@ -6,37 +6,35 @@ from .var import fVar, fParam
 
 
 def _selectVar(obj):
-    x = None
-
     if 'param' in obj:
         # Parameter strings are just be fParams
         if obj['param']['pytype'] == 'complex':
-            x = fParamComplex
+            return fParamComplex
         elif obj['param']['array']:
             if obj['param']['array']:
-                x = fParamArray
+                return fParamArray
         else:
-            x = fParam
+            return fParam
     elif 'var' in obj:
         if 'dt' in obj['var'] and obj['var']['dt']:
             from .types import fDerivedType
-            x = fDerivedType
+            return fDerivedType
         elif 'array' in obj['var']:
             array = obj['var']['array']['atype']
             if array == 'explicit':
-                x = fExplicitArray
+                return fExplicitArray
             elif any(array in i for i in ['assumed_shape','alloc','pointer']):
-                x = fAssumedShape
+                return fAssumedShape
             elif array == 'assumed_size':
-                x = fAssumedSize
+                return fAssumedSize
         elif obj['var']['pytype'] == 'str':
-            x = fStr
+            return fStr
         elif obj['var']['pytype'] == 'complex':
-            x = fComplex
+            return fComplex
         elif 'is_func' in obj['var'] and obj['var']['is_func']:
             from .functions import fFuncPtr
-            x = fFuncPtr
+            return fFuncPtr
         else:
-            x = fVar
+            return fVar
 
-    return x
+    return None
