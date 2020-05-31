@@ -173,10 +173,10 @@ class fFunc():
         args = []
         for i in self.arg:
             x = self._get_fvar(i)(i)
-
             if isinstance(x, fStr):  # Need a string length at the end of the argument list
                 extras.append(fStrLen())
-            if isinstance(x, fArray):  # Need a string length at the end of the argument list
+
+            if isinstance(x,fArray) and x.pytype == str:  # Need a string length at the end of the argument list
                 extras.append(fStrLenArray())
 
             args.append(x)
