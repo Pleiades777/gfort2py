@@ -92,6 +92,10 @@ class fDerivedType():
     def keys(self):
         return self._comp.keys()
 
+    def items(self):
+        for k in self.keys():
+            yield k,getattr(self, k)
+
     def __getitem__(self, key):
         ind = self._itemsetup(key)
 
