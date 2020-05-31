@@ -2,6 +2,8 @@
 import ctypes
 import pickle
 import errno
+import string
+import random
 
 from .types import _alldtdefs
 from .functions import fFunc, fFuncPtr
@@ -161,7 +163,17 @@ class fFort():
         
 
     def allocate_dt(self, name):
-        dt = _alldtdefs[name]
-        x = self._get_fvar(dt)(dt)
-        return x.from_param({})
+        v = {'num': '-1',
+            'name': ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)),
+            'module': 'dt',
+            'parent_id': '1',
+            'var': {'pytype': 'dict',
+            'ctype': 'c_void_p',
+            'bytes': '6',
+            'dt': {'name': name, 'module': 'dt', 'num': 6},
+            'optional': False},
+            'mangled_name': 'UNKNOWN'}
+        x = self._get_fvar(v)(v)
+        x.from_param({})
+        return x
         

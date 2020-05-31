@@ -190,6 +190,13 @@ class TestDTMethods(unittest.TestCase):
         np_test.assert_array_equal(s[1].b_int_exp_1d, np.array([77,77,77,77,77]))
         
     
+    def test_allocate_dt(self):
+        y=x.allocate_dt('s_simple')
+        y.y=1
+        y.x=5
+        self.assertEqual(y.y,1)
+        self.assertEqual(y.x,5)
+
     
 if __name__ == '__main__':
     unittest.main() 

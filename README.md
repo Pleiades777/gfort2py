@@ -159,6 +159,16 @@ x.my_dt2[0,0].x
 You can only access one component at a time (i.e no striding [:]). Allocatable derived types are not yet supported.
 
 
+Sometimes you may need to have a derived type "allocated" before proceeding further. In this case
+you can call:
+
+````python
+y = x.allocate_dt('my_type')
+````
+
+Y will now be a derived type of type "my_type".
+
+
 ## Testing
 
 ````bash

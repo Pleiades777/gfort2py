@@ -78,6 +78,8 @@ module dt
     TYPE(s_struct_basic),dimension(2),  target :: f_struct_target_1d
     TYPE(s_struct_basic),dimension(2,2),target :: f_struct_target_2d
     
+    TYPE(s_simple),dimension(5) :: i_struct_simp_exp_1d
+    TYPE(s_simple),dimension(5,5) :: i_struct_simp_exp_2d    
     
     TYPE(s_struct_nested) :: g_struct
     
