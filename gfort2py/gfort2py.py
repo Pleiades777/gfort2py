@@ -164,7 +164,7 @@ class fFort():
 
     def allocate_dt(self, name):
         v = {'num': '-1',
-            'name': ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)),
+            'name': ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8)),
             'module': 'dt',
             'parent_id': '1',
             'var': {'pytype': 'dict',
