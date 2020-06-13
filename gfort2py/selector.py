@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 from .cmplx import fComplex, fParamComplex
-from .arrays import fExplicitArray, fParamArray, fAssumedShape, fAssumedSize
+from .arrays import fExplicitArray, fParamArray, fAssumedShape, fAssumedSize, fQuadArray
 from .strings import fStr
 from .var import fVar, fParam
 
@@ -22,7 +22,10 @@ def _selectVar(obj):
         elif 'array' in obj['var']:
             array = obj['var']['array']['atype']
             if array == 'explicit':
-                return fExplicitArray
+                if obj['var']['pytype'] == 'quad':
+                    return fQuadArray
+                else:
+                    return fExplicitArray
             elif any(array in i for i in ['assumed_shape','alloc','pointer']):
                 return fAssumedShape
             elif array == 'assumed_size':

@@ -285,7 +285,15 @@ class TestExplicitArrayMethods(unittest.TestCase):
         arr_test[0,3] = 5
         
         np_test.assert_array_equal(y.args['arr'],arr_test)
+
+    @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
+    def test_b_qp_exp_1d_2(self):
+        y = x.b_qp_exp_1d_2
+        self.assertEqual(y[0].hex(),'0x0.c0000000000000000000000000000p+3')
+        y[0] = 99.99
+        self.assertEqual(y[0].hex(),'0x0.c7fae147ae1478000000000000000p+7')
+        self.assertEqual(y[1].hex(),'0x0.c0000000000000000000000000000p+3')
+
         
-    
-if __name__ == '__main__':
-    unittest.main() 
+    if __name__ == '__main__':
+        unittest.main() 

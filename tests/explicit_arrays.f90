@@ -42,7 +42,15 @@ module explicit_arrays
     character(len=10), dimension(5,5,5) :: b_str_exp_3d
     character(len=10), dimension(5,5,5,5) :: b_str_exp_4d
     character(len=10), dimension(5,5,5,5,5) :: b_str_exp_5d     
-    
+
+
+    real(qp), dimension(6) :: b_qp_exp_1d
+    real(qp), dimension(6,6) :: b_qp_exp_2d
+    real(qp), dimension(6,6,6) :: b_qp_exp_3d
+    real(qp), dimension(6,6,6,6) :: b_qp_exp_4d
+    real(qp), dimension(6,6,6,6,6) :: b_qp_exp_5d    
+
+    real(qp), dimension(6) :: b_qp_exp_1d_2 = 6_qp
     
     contains
 

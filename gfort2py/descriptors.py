@@ -87,10 +87,6 @@ def _make_fAlloc15(ndims):
     return _fAllocArray
 
 
-
-
-
-
 class arrayInterfaceDescriptor(): 
     def __init__(self, ndims, elem, length=-1):
         self.ndims = ndims
@@ -292,7 +288,7 @@ class arrayInterfaceDescriptor():
 ##############################3
 
 
-class arrayGenericDescriptor(): 
+class arrayExplicitDescriptor(): 
     def __init__(self, ndims, elem, length=-1, shape=None):
         self.ndims = ndims
         self._ictype = None # Instance of self.ctype()
@@ -358,7 +354,11 @@ class arrayGenericDescriptor():
         addr = ctypes.addressof(self._ictype) + ind * ctypes.sizeof(self.elem)
 
         x = self.elem.from_address(addr)
-        x.value = value
+        if hasattr(x, 'value'):
+            x.value = value
+        else:
+            for idx,i in enumerate(x):
+                x[idx] = value[idx]
 
     def _index(self, key):
         if isinstance(key, tuple):

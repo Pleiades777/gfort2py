@@ -10,8 +10,8 @@ except ImportError:
 from .fnumpy import remove_ownership
 from .errors import AllocationError, IgnoreReturnError
 
-from .descriptors import arrayInterfaceDescriptor, arrayGenericDescriptor
-
+from .descriptors import arrayInterfaceDescriptor, arrayExplicitDescriptor
+from .quad import bytes2quad, quad2bytes
 
 class BadFortranArray(Exception):
     pass
@@ -34,9 +34,8 @@ class fArray():
         self.ctype_elem = getattr(ctypes, self.var['ctype'])
 
         if self.var['pytype'] == 'quad':
-            self.pytype = np.longdouble
-            self.ctype = 'c_longdouble'
-            print("Quad precision not supported, will add 16 bytes of padding")
+            self.pytype = 'quad'
+            self.ctype_elem = ctypes.c_ubyte * 16
         elif self.var['pytype'] == 'bool':
             self.pytype = int
             self.ctype_elem = ctypes.c_int32
@@ -166,8 +165,11 @@ class fArray():
 
     def _save_value(self, value):
         self.set_length(value)
-        self._value = np.asfortranarray(value,dtype=self.dtype)
-        remove_ownership(self._value)
+        if isinstance(value, np.ndarray):
+            self._value = np.asfortranarray(value,dtype=self.dtype)
+            remove_ownership(self._value)
+        elif isinstance(value, fArray):
+            self._value = value
 
     def set_in_dll(self, lib, value):
         self.array_desc.in_dll(lib, self.mangled_name)
@@ -200,12 +202,18 @@ class fArray():
             self.array_desc.set(self._value.ctypes.data, np.shape(self._value))
             return self.array_desc.from_param()
 
+    def __getitem__(self, key):
+        return self.array_desc.__getitem__(key)
+
+    def __setitem__(self, key, value):
+        self.array_desc.__setitem__(key, value)    
+
 
 class fExplicitArray(fArray):
     def __init__(self, obj):
         super().__init__(obj)
 
-        self.array_desc = arrayGenericDescriptor(self.ndim, elem=self.ctype_elem,
+        self.array_desc = arrayExplicitDescriptor(self.ndim, elem=self.ctype_elem,
                             length=self.length, shape=self._shape)
 
     def from_func(self, pointer):
@@ -359,3 +367,25 @@ class fStrLenArray():
 
     def from_func(self, pointer):
         raise IgnoreReturnError
+
+class fQuadArray(fArray):
+    def __init__(self, obj):
+        super().__init__(obj)
+
+        self.array_desc = arrayExplicitDescriptor(self.ndim, elem=self.ctype_elem,
+                            length=self.length, shape=self._shape)
+
+    def __getitem__(self, key):
+        val = super().__getitem__(key)
+
+        return bytes2quad(val)
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, quad2bytes(value))
+
+    def from_address(self, addr):
+        self.array_desc.from_address(addr)
+        return self
+
+    def __repr__(self):
+        return "real(qp),dimension" + str(self.shape)
