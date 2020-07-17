@@ -71,24 +71,28 @@ class fArray():
             [array] -- Returns a numpy array from the address addr
         """
 
-        buff = {
-            'data': (addr,
-                     False),
-            'typestr': self.dtype,
-            'shape': self.shape,
-            'version': 3,
-            'strides': self.strides
-        }
+        if self.pytype == 'quad':
+            return self
+        else:
+            buff = {
+                'data': (addr,
+                        False),
+                'typestr': self.dtype,
+                'shape': self.shape,
+                'version': 3,
+                'strides': self.strides
+            }
 
-        class numpy_holder():
-            pass
+            class numpy_holder():
+                pass
 
-        holder = numpy_holder()
-        holder.__array_interface__ = buff
-        # print(addr,self.dtype,self.shape,self.strides)
-        arr = np.asfortranarray(holder)
-        remove_ownership(arr)
-        return arr
+            holder = numpy_holder()
+            holder.__array_interface__ = buff
+            # print(addr,self.dtype,self.shape,self.strides)
+            arr = np.asfortranarray(holder)
+            remove_ownership(arr)
+            return arr
+
 
     @property
     def dtype(self):
@@ -98,6 +102,8 @@ class fArray():
             return 'float' + str(8 * ctypes.sizeof(self.array_desc.elem))
         elif self.pytype == str:
             return '|S' + str(ctypes.sizeof(self.array_desc.elem))
+        elif self.pytype == 'quad':
+            return 'uint8'
         else:
             raise NotImplementedError("Type not supported ", self.pytype)
 
@@ -164,12 +170,15 @@ class fArray():
         return self.from_address(self.array_desc.addressof())
 
     def _save_value(self, value):
-        self.set_length(value)
-        if isinstance(value, np.ndarray):
+        if self.pytype == 'quad':
+            v = _map_multid(value, quad2bytes)
+            self._value = np.asfortranarray(v,dtype=self.dtype)
+            self.set_length(self._value)
+        else:
+            self.set_length(value)
             self._value = np.asfortranarray(value,dtype=self.dtype)
             remove_ownership(self._value)
-        elif isinstance(value, fArray):
-            self._value = value
+
 
     def set_in_dll(self, lib, value):
         self.array_desc.in_dll(lib, self.mangled_name)
@@ -198,14 +207,21 @@ class fArray():
             self._save_value(value)
             self._shape = np.shape(self._value)
             self.array_desc._shape = np.shape(self._value)
-            self.set_length(value)
             self.array_desc.set(self._value.ctypes.data, np.shape(self._value))
             return self.array_desc.from_param()
 
     def __getitem__(self, key):
-        return self.array_desc.__getitem__(key)
+        val = self.array_desc.__getitem__(key)
+
+        if self.pytype == 'quad':
+            return bytes2quad(val)
+        else:
+            return val
 
     def __setitem__(self, key, value):
+        if self.pytype == 'quad':
+            value = quad2bytes(value)
+
         self.array_desc.__setitem__(key, value)    
 
 
@@ -368,24 +384,12 @@ class fStrLenArray():
     def from_func(self, pointer):
         raise IgnoreReturnError
 
-class fQuadArray(fArray):
-    def __init__(self, obj):
-        super().__init__(obj)
 
-        self.array_desc = arrayExplicitDescriptor(self.ndim, elem=self.ctype_elem,
-                            length=self.length, shape=self._shape)
-
-    def __getitem__(self, key):
-        val = super().__getitem__(key)
-
-        return bytes2quad(val)
-
-    def __setitem__(self, key, value):
-        super().__setitem__(key, quad2bytes(value))
-
-    def from_address(self, addr):
-        self.array_desc.from_address(addr)
-        return self
-
-    def __repr__(self):
-        return "real(qp),dimension" + str(self.shape)
+def _map_multid(mylist,mymap):
+    res = []
+    for i in mylist:
+        if isinstance(i,list):
+            res.append(_map_multid(i,mymap))
+        else:
+            res.append(mymap(i))
+    return res

@@ -14,6 +14,8 @@ from . import version
 
 from . import parseMod as pm
 
+from . import quad
+
 WARN_ON_SKIP = False
 
 class fFort():
@@ -162,7 +164,7 @@ class fFort():
         return _selectVar(var)
         
 
-    def allocate_dt(self, name):
+    def allocate_dt(self, name, shape = None):
         v = {'num': '-1',
             'name': ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8)),
             'module': 'dt',
@@ -173,7 +175,15 @@ class fFort():
             'dt': {'name': name, 'module': 'dt', 'num': 6},
             'optional': False},
             'mangled_name': 'UNKNOWN'}
-        x = self._get_fvar(v)(v)
-        x.from_param({})
-        return x
+        if shape is None:
+            x = self._get_fvar(v)(v)
+            x.from_param({})
+            return x
+        else:
+            pass
         
+    def allocate_quad(self, shape = None):
+        if shape is None:
+            return quad.null_quad()
+        else:
+            pass

@@ -182,6 +182,35 @@ module explicit_arrays
 
     end subroutine check_exp_2d_2m3_nt  
     
-    
+
+    logical function check_quad_exp_1d(arr)
+        real(qp), dimension(5) :: arr
+        integer :: i
+
+        check_quad_exp_1d = .true.
+        do i=1,5
+            if(arr(i).ne.5.0_qp) check_quad_exp_1d = .false.
+        end do
+        
+    end function check_quad_exp_1d
+
+
+    subroutine xx()
+        integer, dimension(5,5) :: x
+
+        !allocate(x(5,5))
+
+        call xx2(x(5,:))
+
+    end subroutine xx
+
+
+    subroutine xx2(x)
+        integer, dimension(:) :: x
+
+        write(*,*) x
+
+    end subroutine xx2
+
 
 end module explicit_arrays

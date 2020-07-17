@@ -14,6 +14,9 @@ if has_bf:
     for i in range(123):
         pow2bf.append(bf.BigFloat(2,bf.quadruple_precision)**(-((i+1))))
 
+def null_quad():
+    return bf.BigFloat(0,bf.quadruple_precision)
+
 
 def bytes2quad(bytearr):
     bb=[]

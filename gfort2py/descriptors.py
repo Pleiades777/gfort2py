@@ -452,8 +452,15 @@ class arrayExplicitDescriptor():
             self.allocate()
 
         if self.shape != -1:
-            if shape != self.shape:
-                raise AttributeError("Inconsistent shape for array") 
+            if isinstance(self.elem(), ctypes.c_ubyte*16):
+                print(shape,self.shape)
+                if shape[:-1] != self.shape:
+                    raise AttributeError("Inconsistent shape for array")
+                else:
+                    shape = shape[:-1]
+            else:
+                if shape != self.shape:
+                    raise AttributeError("Inconsistent shape for array") 
 
         self._shape = shape
         self.base_addr = addr
