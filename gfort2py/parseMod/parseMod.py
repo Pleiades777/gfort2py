@@ -67,7 +67,7 @@ def run(filename,output=None,save=True,unpack=True):
         return x
 
 def fpyname(filename):
-    return filename.split('.')[0] + '.fpy'
+    return os.path.splitext(filename)[0]+'.fpy'
 
 #################################
 
