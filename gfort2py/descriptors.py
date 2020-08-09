@@ -285,7 +285,7 @@ class arrayInterfaceDescriptor():
         return ftype
 
 
-##############################3
+###############################
 
 
 class arrayExplicitDescriptor(): 

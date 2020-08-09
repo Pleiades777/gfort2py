@@ -10,7 +10,7 @@ except ImportError:
     print("Bigfloat not installed quad precision not fully supported")
     has_bf = False
 
-from .quad import bytes2quad, quad2bytes
+from .quad import bytes2quad, quad2bytes, num2quad
 from .errors import IgnoreReturnError
 
 
@@ -148,7 +148,7 @@ class fParam():
         self.value = self.param['value']
         self.pytype = self.param['pytype']
         if self.pytype == 'quad':
-            self.pytype = np.longdouble
+            self.pytype = 'quad'
         elif self.pytype == 'bool':
             self.pytype = bool
             self.ctype = 'c_int32'
@@ -166,7 +166,13 @@ class fParam():
         A parameters value is stored in the objects dict, as we can't access them
         from the shared lib.
         """
-        return self.pytype(self.value)
+        if not self.pytype == 'quad':
+            return self.pytype(self.value)
+        else:
+            if has_bf:
+                return num2quad(self.value)
+            else:
+                raise ValueError("Must install BigFloat first")
 
 
 

@@ -17,6 +17,9 @@ if has_bf:
 def null_quad():
     return bf.BigFloat(0,bf.quadruple_precision)
 
+def num2quad(number):
+    return bf.BigFloat(number,bf.quadruple_precision)
+
 
 def bytes2quad(bytearr):
     bb=[]

@@ -374,7 +374,7 @@ class fParamArray():
 
 
 class fStrLenArray():
-    # Handles the hidden string length functions need
+    # Handles the hidden argument for the strings length that functions need
     def __init__(self):
         self.ctype = ctypes.c_int64
 
