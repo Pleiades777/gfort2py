@@ -11,7 +11,6 @@ from .fnumpy import remove_ownership
 from .errors import AllocationError, IgnoreReturnError
 
 from .descriptors import arrayInterfaceDescriptor, arrayExplicitDescriptor
-from .quad import bytes2quad, quad2bytes
 
 class BadFortranArray(Exception):
     pass
@@ -34,8 +33,7 @@ class fArray():
         self.ctype_elem = getattr(ctypes, self.var['ctype'])
 
         if self.var['pytype'] == 'quad':
-            self.pytype = 'quad'
-            self.ctype_elem = ctypes.c_ubyte * 16
+            raise NotImplementedError("quad arrays not supported yet")
         elif self.var['pytype'] == 'bool':
             self.pytype = int
             self.ctype_elem = ctypes.c_int32
@@ -102,8 +100,6 @@ class fArray():
             return 'float' + str(8 * ctypes.sizeof(self.array_desc.elem))
         elif self.pytype == str:
             return '|S' + str(ctypes.sizeof(self.array_desc.elem))
-        elif self.pytype == 'quad':
-            return 'uint8'
         else:
             raise NotImplementedError("Type not supported ", self.pytype)
 
@@ -211,17 +207,9 @@ class fArray():
             return self.array_desc.from_param()
 
     def __getitem__(self, key):
-        val = self.array_desc.__getitem__(key)
-
-        if self.pytype == 'quad':
-            return bytes2quad(val)
-        else:
-            return val
+        return self.array_desc.__getitem__(key)
 
     def __setitem__(self, key, value):
-        if self.pytype == 'quad':
-            value = quad2bytes(value)
-
         self.array_desc.__setitem__(key, value)    
 
 
