@@ -144,7 +144,7 @@ class TestDummyArrayMethods(unittest.TestCase):
         v=np.zeros([256],dtype='int32')
         v[:]=5
         x.c_int_alloc_1d = v
-        np_test.assert_array_equal(x.c_int_alloc_1d,v)
+        z = np_test.assert_array_equal(x.c_int_alloc_1d,v)
         y=x.sub_alloc_int_1d_cleanup()
 
     def test_c_real_alloc_1d(self):
@@ -230,6 +230,20 @@ class TestDummyArrayMethods(unittest.TestCase):
         v[:]=2.0
         x.c_real_dp_alloc_5d = v
         np_test.assert_array_equal(x.c_real_dp_alloc_5d,v)
+        y=x.sub_alloc_real_dp_1d_cleanup()
+
+    def test_c_real_dp_realloc_5d_set(self):
+        y=x.sub_alloc_real_dp_1d_cleanup()
+        y=x.sub_alloc_real_dp_1d_arrs()
+        v=np.zeros([5,5,5,5,5])
+        v[:]=2.0
+        x.c_real_dp_alloc_5d = v
+        np_test.assert_array_equal(x.c_real_dp_alloc_5d,v)
+        v=np.zeros([1,2,3,4,5])
+        v[:]=6.0
+        x.c_real_dp_alloc_5d = v
+        np_test.assert_array_equal(x.c_real_dp_alloc_5d,v)
+
         y=x.sub_alloc_real_dp_1d_cleanup()
     
     def test_c_real_dp_alloc_1d(self):

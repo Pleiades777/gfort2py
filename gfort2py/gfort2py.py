@@ -187,3 +187,9 @@ class fFort():
             return quad.null_quad()
         else:
             pass
+
+    def deallocate(self, name):
+        nl=name.lower() 
+        if nl in self._all:
+            if hasattr(self._all[nl],'deallocate'):
+                self._all[nl].deallocate()

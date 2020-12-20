@@ -195,6 +195,13 @@ class fFunc():
         return isinstance(x, str) or isinstance(x, bytes) or (isinstance(x,np.ndarray) and x.dtype.char=='S')
 
 
+    def deallocate(self):
+        for i in self._args:
+            try:
+                i.deallocate()
+            except KeyError:
+                pass
+
 class fFuncPtr(fFunc):
 
     def _set_ptr_in_dll(self, lib, func):

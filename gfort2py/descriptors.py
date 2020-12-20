@@ -2,6 +2,11 @@
 import ctypes
 import numpy as np
 import sys
+from .errors import AllocationError, IgnoreReturnError
+
+from ctypes.util import find_library
+
+_libc = ctypes.CDLL(find_library("c"))
 
 def make_complex(ct):
 
@@ -101,6 +106,14 @@ class arrayInterfaceDescriptor():
     def allocate(self):
         self._ictype = self.ctype()
 
+    def deallocate(self):
+        if self._ictype is not None and self._ictype.base_addr is not None:
+            ptr = ctypes.cast(self._ictype.base_addr,ctypes.POINTER(ctypes.c_int))
+            if ptr is not None:
+                _libc.free(ptr)
+            self._ictype.base_addr = None
+            self._ictype = None
+
     def isAllocated(self):
         if self._ictype is None:
             return False
@@ -121,7 +134,9 @@ class arrayInterfaceDescriptor():
         return self  
 
     def addressof(self):
-        return ctypes.addressof(self._ictype)
+        if self._ictype is not None:
+            return ctypes.addressof(self._ictype)
+        raise AllocationError("Array not allocated yet")
 
     def from_param(self):
         if not self.isAllocated():
@@ -238,9 +253,9 @@ class arrayInterfaceDescriptor():
         return self._ictype
 
 
-    def set(self, addr, shape):
-        if not self.isAllocated():
-            self.allocate()
+    def set(self, addr, shape, allocate=False):
+        if allocate and not self.isAllocated():
+             self.allocate()
 
         self.base_addr = addr
         self.shape = shape
@@ -300,6 +315,10 @@ class arrayExplicitDescriptor():
 
     def allocate(self):
         self._ictype = self.ctype()
+
+    def deallocate(self):
+        if self.isAllocated():
+            self._ictype = None
 
     def isAllocated(self):
         if self._ictype is None:
@@ -447,13 +466,12 @@ class arrayExplicitDescriptor():
         return self._ictype
 
 
-    def set(self, addr, shape):
-        if not self.isAllocated():
+    def set(self, addr, shape, allocate=False):
+        if allocate and not self.isAllocated():
             self.allocate()
 
         if self.shape != -1:
             if isinstance(self.elem(), ctypes.c_ubyte*16):
-                print(shape,self.shape)
                 if shape[:-1] != self.shape:
                     raise AttributeError("Inconsistent shape for array")
                 else:

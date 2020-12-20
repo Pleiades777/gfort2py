@@ -4,6 +4,7 @@ import os, sys
 
 os.environ["_GFORT2PY_TEST_FLAG"] = "1"
 
+
 import numpy as np
 import gfort2py as gf
 
@@ -115,7 +116,7 @@ class TestBasicMethods(unittest.TestCase):
 
     @unittest.skip("Broken")
     @unittest.skipIf(not gf.var.has_bf,"Needs bigfloat")
-    def test_sub_alter_mod_qp2(self):
+    def test_sub_alter_mod_qp3(self):
         x.a_real_qp = '0.123145798543215465789432156798413288'
         self.assertEqual(x.a_real_qp.hex(),'0x0.fc33dd4b1035aba22f4a45fe6e788p-3')
 

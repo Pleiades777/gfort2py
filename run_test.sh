@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd tests
+cd tests || exit 
 
 make clean
 make
