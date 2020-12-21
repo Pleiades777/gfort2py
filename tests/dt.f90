@@ -196,6 +196,14 @@ module dt
         func_set_f_struct = .true.
     
     end function func_set_f_struct
+
+
+    subroutine sub_dealloc_f_struct()
+
+        deallocate(f_struct%c_int_alloc_1d)
+        nullify(f_struct%d_int_point_1d)
+
+    end subroutine sub_dealloc_f_struct
     
     logical function func_check_f_struct()
     

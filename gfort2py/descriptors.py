@@ -93,7 +93,7 @@ def _make_fAlloc15(ndims):
 
 
 class arrayInterfaceDescriptor(): 
-    def __init__(self, ndims, elem, length=-1):
+    def __init__(self, ndims, elem, length=-1, isptr=False):
         self.ndims = ndims
         self.ctype = _make_fAlloc15(self.ndims)
         self._ictype = None # Instance of self.ctype()
@@ -102,17 +102,21 @@ class arrayInterfaceDescriptor():
                                 # used for strings)
 
         self._p = None
+        self.isptr = isptr
 
     def allocate(self):
         self._ictype = self.ctype()
 
     def deallocate(self):
-        if self._ictype is not None and self._ictype.base_addr is not None:
+        if not self.isptr and self._ictype is not None and self._ictype.base_addr is not None:
             ptr = ctypes.cast(self._ictype.base_addr,ctypes.POINTER(ctypes.c_int))
             if ptr is not None:
                 _libc.free(ptr)
-            self._ictype.base_addr = None
-            self._ictype = None
+                ptr = None
+               # _libc.free(ptr)
+        self._ictype.base_addr = None
+        self._ictype = None
+        self._p = None
 
     def isAllocated(self):
         if self._ictype is None:
@@ -304,7 +308,7 @@ class arrayInterfaceDescriptor():
 
 
 class arrayExplicitDescriptor(): 
-    def __init__(self, ndims, elem, length=-1, shape=None):
+    def __init__(self, ndims, elem, length=-1, shape=None, isptr=False):
         self.ndims = ndims
         self._ictype = None # Instance of self.ctype()
         self._elem = elem # The basic type (int, derived type, etc) of one unit of the array
@@ -312,6 +316,7 @@ class arrayExplicitDescriptor():
                                 # used for strings)
         self._shape = shape
         self._p = None
+        self.isptr = isptr
 
     def allocate(self):
         self._ictype = self.ctype()
@@ -319,6 +324,7 @@ class arrayExplicitDescriptor():
     def deallocate(self):
         if self.isAllocated():
             self._ictype = None
+        self._p = None
 
     def isAllocated(self):
         if self._ictype is None:

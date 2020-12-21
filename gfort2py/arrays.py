@@ -57,6 +57,7 @@ class fArray():
                 self._shape = self.array['shape']
 
         self._value = None
+        self._p = None
 
     def from_address(self, addr):
         """ Create a numpy array from address
@@ -211,6 +212,13 @@ class fArray():
             give_ownership(self._value)
             self._value = None
 
+        if self._p is not None:
+            self._p = None
+            return
+
+        if self.array['atype'] == 'pointer':
+            self.array_desc.isptr = True
+            
         if self.array_desc.isAllocated():
             self.array_desc.deallocate()
 
@@ -227,6 +235,7 @@ class fExplicitArray(fArray):
         if hasattr(pointer, 'contents'):
             if hasattr(pointer.contents, 'contents'):
                 x = pointer.contents.contents
+                self.array_desc.isptr = True
             else:
                 x = pointer.contents
 
@@ -261,6 +270,7 @@ class fDummyArray(fArray):
         if hasattr(pointer, 'contents'):
             if hasattr(pointer.contents, 'contents'):
                 x = pointer.contents.contents
+                self.array_desc.isptr = True
             else:
                 x = pointer.contents
 
